@@ -1,7 +1,11 @@
 # [OpenCL C to OpenCL C++ Porting Guidelines](./OpenCLCToOpenCLCppPortingGuidelines.md)
 
-Some introduction.....
+TODO: some introduction
+
+## Getting started
+
+TODO
 
 ## Contributions and LICENSE
 
-Comments and suggestions for improvements are most welcome. More details are found at [CONTRIBUTING](./CONTRIBUTING.md) and [LICENSE](./LICENSE) .
+Comments and suggestions for improvements are most welcome. More details are found at [CONTRIBUTING](./CONTRIBUTING.md) and [LICENSE](./LICENSE).
