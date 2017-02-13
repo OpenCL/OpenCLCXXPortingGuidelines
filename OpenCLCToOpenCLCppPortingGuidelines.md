@@ -1,6 +1,6 @@
 # <a name="title"></a>OpenCL C to OpenCL C++ Porting Guidelines
 
-February 10, 2017
+February 14, 2017
 
 Editors:
 
@@ -16,23 +16,26 @@ hard-to-detect bugs when porting from OpenCL C to OpenCL C++.
 
 Comments and suggestions for improvements are most welcome.
 
-#### List of discussed issues:
+#### [Differences](#S-Differences):
 
-* [OpenCL C++ Programming Language](#C-OpenCLCXX):
-  * [OpenCL C vector literals](#C-OpenCLCXX-S-VectorLiterals)
-  * [Kernel Function Restrictions](#C-OpenCLCXX-S-KernelRestrictions)
-  * [Kernel Parameter Restrictions](#C-OpenCLCXX-S-KernelParamsRestrictions)
-  * [General Restrictions](#C-OpenCLCXX-S-GeneralRestrictions)
-* [OpenCL C++ Standard Library](#C-OpenCLCXXSTL):
-  * [Namespace cl::](#C-OpenCLCXXSTL-S-NamespaceCL)
+* [OpenCL C++ Programming Language](#S-OpenCLCXX):
+  * [OpenCL C vector literals](#S-OpenCLCXX-VectorLiterals)
+  * [Kernel Function Restrictions](#S-OpenCLCXX-KernelRestrictions)
+  * [Kernel Parameter Restrictions](#S-OpenCLCXX-KernelParamsRestrictions)
+  * [General Restrictions](#S-OpenCLCXX-GeneralRestrictions)
+* [OpenCL C++ Standard Library](#S-OpenCLCXXSTL):
+  * [Namespace cl::](#S-OpenCLCXXSTL-NamespaceCL)
   * TODO
-* [OpenCL C++ Compilation Process](#C-OpenCLCXXCompilation):
+* [OpenCL C++ Compilation Process](#S-OpenCLCXXCompilation):
   * TODO
 
----
-## <a name="C-OpenCLCXX"></a>OpenCL C++ Programming Language
+#### [Bibliography](#S-Bibliography)
 
-### <a name="C-OpenCLCXX-S-VectorLiterals"></a>OpenCL C vector literals
+# <a name="S-Differences"></a>Differences
+
+## <a name="S-OpenCLCXX"></a>OpenCL C++ Programming Language
+
+### <a name="S-OpenCLCXX-VectorLiterals"></a>OpenCL C vector literals
 
 Vector literals, expression used for creating vectors from a list of scalars,
 vectors or a mixture thereof, known from OpenCL C are not part of the OpenCL C++
@@ -53,7 +56,7 @@ float4(float)
 ```
 
 ##### Note
-> Vector literals in OpenCL C++ are NOT evaluated as user might expect,
+> In OpenCL C++ vector literals are NOT evaluated as user might expect,
 unfortunately, they never cause compilation errors.
 
 Vector literals in OpenCL C++ are not evaluated as user might expect.
@@ -97,20 +100,20 @@ float4 f = float4(float2(1.0f, 2.0f), float2(3.0f, 4.0f));
 float4 f = float4(1.0f, float2(2.0f, 3.0f), 4.0f);
 ```
 
-### <a name="C-OpenCLCXX-S-KernelRestrictions"></a>Kernel Function Restrictions
+### <a name="S-OpenCLCXX-KernelRestrictions"></a>Kernel Function Restrictions
 
 TODO
 
-### <a name="C-OpenCLCXX-S-KernelParamsRestrictions"></a>Kernel Parameter Restrictions
+### <a name="S-OpenCLCXX-KernelParamsRestrictions"></a>Kernel Parameter Restrictions
 
 TODO
 
-### <a name="C-OpenCLCXX-S-GeneralRestrictions"></a>General Restrictions
+### <a name="S-OpenCLCXX-GeneralRestrictions"></a>General Restrictions
 
 TODO
 
 ---
-## <a name="C-OpenCLCXXSTL"></a>OpenCL C++ Standard Library
+## <a name="S-OpenCLCXXSTL"></a>OpenCL C++ Standard Library
 
 OpenCL C++ does not support the C++14 standard library, but instead implements its
 own standard library. It is a replacement for built-in functions provided in
@@ -119,22 +122,22 @@ OpenCL C.
 ##### Note
 > OpenCL C++ classes and functions are NOT auto-included.
 
-### <a name="C-OpenCLCXXSTL-S-NamespaceCL"></a>Namespace cl::
+### <a name="S-OpenCLCXXSTL-NamespaceCL"></a>Namespace cl::
 
-All class and funtions provided in OpenCL C++ Standard Library are located in
+All class and functions provided in OpenCL C++ Standard Library are located in
 namespace `cl::`.
 
-#### Examples
+#### Solution
 
-A using-directive `using namespace cl;` can be used to reduce work need to port
-OpenCL C programs to OpenCL C++. However, it is important to remember to include
-required headers.
+Adding a using-directive `using namespace cl;` right after including all required headers can reduce work needed to port OpenCL C programs to OpenCL C++.
+
+#### Examples
 
 ```cpp
 #include <opencl_memory>
 #include <opencl_integer> // cl::abs(gentype x)
 
-kernel void foo(cl::global_ptr<int[]> input, uint size)
+kernel void foo(cl::global_ptr<int[]> input /* note cl:: prefix */, uint size)
 {
   uint global_id = cl::get_global_id(0); // note cl:: prefix
   if(global_id < size)
@@ -145,22 +148,48 @@ kernel void foo(cl::global_ptr<int[]> input, uint size)
 }
 ```
 
+```cpp
+#include <opencl_memory>
+#include <opencl_integer> // cl::abs(gentype x)
+using namespace cl; // no need for cl:: prefix after this
+
+kernel void foo(global_ptr<int[]> input, uint size)
+{
+  uint global_id = get_global_id(0);
+  if(global_id < size)
+  {
+    input[global_id] = abs(input[global_id]);
+  }
+}
+```
+
 ### TODO
 
+* Address Spaces Library (address space pointers and storage classes)
+* New C++ interfaces for OpenCL C special types
+  * pipe is not a keyword anymore, pips is a class now
+  * Atomic integer and floating-point types are now classes (but seem to be compatible
+  with OpenCL C via typedefs)
 * bool and booln types are use in many function instead of int, intn, long, longn
 types
 * all, any and select functions are slightly different because of using booln type
 * (type traits) I think we can mention useful tools for vectors like:
-make_vector<T, N>, scalar_type<T> etc.
-* Atomics are now classes, not set of functions (but seem to be compatible
-with OpenCL C via typedefs)
-* pipe is not a keyword anymore, pips is a class now
+`make_vector<T, N>`, `scalar_type<T>` etc.
 * half wrapper?
+* OpenCL C `convert_*` built-in functions were replaced by `convert_cast<>` function template.
 
 ---
-## <a name="C-OpenCLCXXCompilation"></a>OpenCL C++ Compilation Process
+## <a name="S-OpenCLCXXCompilation"></a>OpenCL C++ Compilation Process
 
 ### TODO
 
-* now there are two compilers: front-compiler (OpenCL C++ to SPIR-V) and
-back-compiler (SPIR-V to device machine code)
+* Now there are two compilers: front-compiler (OpenCL C++ to SPIR-V) and
+back-compiler (SPIR-V to device machine code).
+I think it's worth explaining it to the user (with some examples).
+
+
+# <a name="S-Bibliography"></a>Bibliography
+
+* TODO
+* OpenCL C++ Spec
+* Other related specs and presentations
