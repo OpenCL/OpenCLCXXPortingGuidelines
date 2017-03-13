@@ -201,7 +201,27 @@ or constant.
 
 ### <a name="S-OpenCLCXX-GeneralRestrictions"></a>General Restrictions
 
-TODO
+The following C++14 features are not supported by OpenCL C++:
+* the `dynamic_cast` operator (ISO C++ Section 5.2.7),
+* type identification (ISO C++ Section 5.2.8),
+* recursive function calls (ISO C++ Section 5.2.2, item 9) unless they are a compile-time constant expression,
+* non-placement `new` and `delete` operators (ISO C++ Sections 5.3.4 and 5.3.5),
+* `goto` statement (ISO C++ Section 6.6),
+* `register` and `thread_local` storage qualifiers (ISO C++ Section 7.1.1),
+* `virtual` function qualifier (ISO C++ Section 7.1.2),
+* **function pointers** (ISO C++ Sections 8.3.5 and 8.5.3) **unless they are a compile-time constant expression**,
+* virtual functions and abstract classes (ISO C++ Sections 10.3 and 10.4),
+* exception handling (ISO C++ Section 15),
+* the C++ standard library (ISO C++ Sections 17 . . . 30),
+* `asm` declaration (ISO C++ Section 7.4),
+* no implicit lambda to function pointer conversion (ISO C++ Section 5.1.2, item 6),
+* variadic functions (ISO C99 Section 7.15, Variable arguments <stdarg.h>),
+* and, like C++, OpenCL C++ does not support variable length arrays (ISO C99, Section 6.7.5).
+
+To avoid potential confusion with the above, please note the following
+features are supported in OpenCL C++:
+
+* **All variadic templates** (ISO C++ Section 14.5.3) **including variadic function templates are supported**.
 
 ---
 ## <a name="S-OpenCLCXXSTL"></a>OpenCL C++ Standard Library
