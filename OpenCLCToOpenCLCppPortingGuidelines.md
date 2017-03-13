@@ -102,11 +102,102 @@ float4 f = float4(1.0f, float2(2.0f, 3.0f), 4.0f);
 
 ### <a name="S-OpenCLCXX-KernelRestrictions"></a>Kernel Function Restrictions
 
-TODO
+Since OpenCL C++ kernel language is based on C++14 several restrictions were defined for
+kernel function to make it resemble kernel function known from OpenCL C:
+
+* A kernel functions are by implicitly declared as extern "C".
+* A kernel function cannot be overloaded.
+* A kernel function cannot be template function.
+* A kernel function cannot be called by another kernel function.
+* A kernel function cannot have parameters specified with default values.
+* A kernel function must have the return type void.
+* A kernel function cannot be called main.
+
+##### Note
+> Compared to OpenCL C in OpenCL C++ you cannot call a kernel function from another kernel function.
+
+#### OpenCL C++ Specification References
+
+* [OpenCL C++ Programming Language: Kernel Functions](LINK_TO_OPENCLCXX_SPEC_HTML#kernel-functions)
+
+#### Examples, bad
+
+```cpp
+// A kernel function cannot be template function.
+template<class T>
+kernel void kernel(cl::global_ptr<T[]> input, uint size)
+{
+  // ...
+}
+
+// A kernel function cannot have parameters specified with default values.
+kernel void foo(cl::global_ptr<uint[]> input, uint size = 10)
+{
+  // ...
+}
+
+kernel void bar(cl::global_ptr<uint[]> input, uint size)
+{
+  // A kernel function cannot be called by another kernel function.
+  foo(input, size);
+}
+
+// A kernel function cannot be overloaded.
+kernel void bar(cl::global_ptr<float[]> input, uint size)
+{
+  // ...
+}
+```
+
+#### Examples, correct
+
+```cpp
+template<class T>
+void function_template(cl::global_ptr<T[]> input, uint size)
+{
+  // ...
+}
+
+// Specialization for T = float
+template<>
+void function_template(cl::global_ptr<float[]> input, uint size)
+{
+  // ...
+}
+
+kernel void kernel_uint(cl::global_ptr<uint[]> input, uint size)
+{
+  function_template<uint>(input, size);
+}
+
+kernel void kernel_float(cl::global_ptr<float[]> input, uint size)
+{
+  function_template<float>(input, size);
+}
+```
 
 ### <a name="S-OpenCLCXX-KernelParamsRestrictions"></a>Kernel Parameter Restrictions
 
-TODO
+The OpenCL host compiler and the OpenCL C++ kernel language device compiler can have
+different requirements for i.e. type sizes, data packing and alignment, etc., therefore
+the kernel parameters must meet the following requirements:
+
+* Types passed by pointer or reference must be standard layout types.
+* Types passed by value must be POD types.
+* Types cannot be declared with the built-in bool scalar type, vector type or a class that
+contain bool scalar or vector type fields.
+* Types cannot be structures and classes with bit field members.
+* Marker types must be passed by value 
+([Marker Types section](LINK_TO_OPENCLCXX_SPEC_HTML#marker-types)). 
+* `global`, `constant`, `local` storage classes can be passed only by reference or pointer. 
+More details in [Explicit address space storage classes](LINK_TO_OPENCLCXX_SPEC_HTML#explicit-address-space-storage-classes)
+section.
+* Pointers and references must point to one of the following address spaces: global, local
+or constant.
+
+#### OpenCL C++ Specification References
+
+* [OpenCL C++ Programming Language: Kernel Functions](LINK_TO_OPENCLCXX_SPEC_HTML#kernel-functions)
 
 ### <a name="S-OpenCLCXX-GeneralRestrictions"></a>General Restrictions
 
@@ -126,6 +217,10 @@ OpenCL C.
 
 All class and functions provided in OpenCL C++ Standard Library are located in
 namespace `cl::`.
+
+#### OpenCL C++ Specification References
+
+* [OpenCL C++ Standard Library](LINK_TO_OPENCLCXX_SPEC_HTML#opencl-c-standard-library)
 
 #### Solution
 
@@ -190,6 +285,8 @@ I think it's worth explaining it to the user (with some examples).
 
 # <a name="S-Bibliography"></a>Bibliography
 
-* TODO
-* OpenCL C++ Spec
+* [The OpenCL C++ 1.0 Specification](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.pdf)
+* [The OpenCL 2.2 API Specification](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-environment.pdf)
+* [The OpenCL C 2.0 Language Specification](https://www.khronos.org/registry/OpenCL/specs/opencl-2.0-openclc.pdf)
+* [The OpenCL 2.1 API Specification](https://www.khronos.org/registry/OpenCL/specs/opencl-2.1.pdf)
 * Other related specs and presentations
