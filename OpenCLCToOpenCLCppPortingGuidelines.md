@@ -16,7 +16,9 @@ hard-to-detect bugs when porting from OpenCL C to OpenCL C++.
 
 Comments and suggestions for improvements are most welcome.
 
-#### [Differences](#S-Differences):
+**[In a nutshell](#S-InANutshell)**
+
+**[Differences](#S-Differences)**:
 
 * [OpenCL C++ Programming Language](#S-OpenCLCXX):
   * [OpenCL C vector literals](#S-OpenCLCXX-VectorLiterals)
@@ -31,7 +33,11 @@ Comments and suggestions for improvements are most welcome.
 * [OpenCL C++ Compilation Process](#S-OpenCLCXXCompilation):
   * TODO
 
-#### [Bibliography](#S-Bibliography)
+**[Bibliography](#S-Bibliography)**
+
+# <a name="S-InANutshell"></a>In a nutshell
+
+ToDo: Add a "quick reference" table for differences between OpenCL C and OpenCL C++.
 
 # <a name="S-Differences"></a>Differences
 
@@ -461,6 +467,8 @@ kernel void example_kernel(cl::global<int> * input)
 
 ##### Note
 > More examples on address spaces can be found in subsections [3.4.5. Restrictions](LINK_TO_OPENCLCXX_SPEC_HTML#restrictions-2) and [3.4.6. Examples](LINK_TO_OPENCLCXX_SPEC_HTML#examples-3) of section [Address Spaces Library](LINK_TO_OPENCLCXX_SPEC_HTML#address-spaces-library) in [OpenCL C++ specification](LINK_TO_OPENCLCXX_SPEC_HTML).
+
+
 
 ### TODO
 
