@@ -22,16 +22,21 @@ Comments and suggestions for improvements are most welcome.
 
 * [OpenCL C++ Programming Language](#S-OpenCLCXX):
   * [OpenCL C vector literals](#S-OpenCLCXX-VectorLiterals)
+  * [<code>bool<i>N</i></code> type](#S-OpenCLCXX-BoolNType)
+  * [End of explicit named address spaces](#S-OpenCLCXX-EndOfExplicitNamedAddressSpaces)
   * [Kernel Function Restrictions](#S-OpenCLCXX-KernelRestrictions)
   * [Kernel Parameter Restrictions](#S-OpenCLCXX-KernelParamsRestrictions)
   * [General Restrictions](#S-OpenCLCXX-GeneralRestrictions)
-  * [End of explicit named address spaces](#S-OpenCLCXX-EndOfExplicitNamedAddressSpaces)
 * [OpenCL C++ Standard Library](#S-OpenCLCXXSTL):
   * [Namespace cl::](#S-OpenCLCXXSTL-NamespaceCL)
   * [Conversions Library (`convert_*()`)](#S-OpenCLCXXSTL-ConversionsLibrary)
   * [Reinterpreting Data Library (<code>as&#95;<i>type</i>()</code>)](#S-OpenCLCXXSTL-ReinterpretingDataLibrary)
   * [Address Spaces Library](#S-OpenCLCXXSTL-AddressSpacesLibrary)
-  * TODO
+  * [Images and Samplers Library](#S-OpenCLCXXSTL-ImagesAndSamplersLibrary)
+  * [Pipes Library](#S-OpenCLCXXSTL-PipesLibrary)
+  * [Device Enqueue Library](#S-OpenCLCXXSTL-DeviceEnqueueLibrary)
+  * [Changes To Built-in Functions](#S-OpenCLCXXSTL-BuiltInFunctions)
+  * [Atomic Operations Library](#S-OpenCLCXXSTL-AtomicOperationsLibrary)
 * [OpenCL C++ Compilation Process](#S-OpenCLCXXCompilation):
   * TODO
 
@@ -109,6 +114,77 @@ float4 f = float4(1.0f, 2.0f, 3.0f, 4.0f);
 float4 f = float4(float2(1.0f, 2.0f), float2(3.0f, 4.0f));
 float4 f = float4(1.0f, float2(2.0f, 3.0f), 4.0f);
 ```
+
+### <a name="S-OpenCLCXX-BoolNType"></a><code>bool<i>N</i></code> type
+
+OpenCL C++ introduces new built-in vector type: `boolN` (where `N` is 2, 4, 8, or 16). This addition change
+resolves problem with using the relational (`<`, `>`, `<=`, `>=`, `==`, `!=`) and the logical operators (`!`, `&&`, `||`) with built-in vector types.
+
+In OpenCL C for built-in vector types the relational and the logica operators return a vector signed
+integer type of the same size as the source operands. In OpenCL C++ it was simpliefied and
+those operators return `boolN` for vector types and `bool` for scalars.
+
+[The OpenCL C 2.0 Specification](#https://www.khronos.org/registry/OpenCL/specs/opencl-2.0-openclc.pdf#page=27)
+on the results of the relational operators:
+>The result is a scalar signed integer of type `int` if the source operands are scalar and a vector
+signed integer type of the same size as the source operands if the source operands are vector
+types.  Vector source operands of type `charn` and `ucharn` return a `charn` result; vector
+source operands of type `shortn` and `ushortn` return a `shortn` result; vector source
+operands of type `intn`, `uintn` and `floatn` return an `intn` result; vector source operands
+of type `longn`, `ulongn` and `doublen` return a `longn` result.
+
+>For scalar types, the relational operators shall return `0` if the specified relation is `false` and `1` if
+the specified relation is `true`. For vector types, the relational operators shall return `0` if the specified
+relation is `false` and `–1` (i.e. all bits set) if the specified relation is `true`. The relational
+operators always return `0` if either argument is not a number (`NaN`).
+
+
+Including `boolN` vector types in OpenCL C++ also caused changes in signatures and/or behavior of many
+built-in functions like: `all()`, `any()` and `select()`.
+See [Changes To Built-in Functions](#S-OpenCLCXXSTL-BuiltInFunctions) for more details.
+
+#### Examples
+
+```cpp
+bool2 b = bool2(1 == 0); // { false, false }
+
+// In OpenCL C: int b = 2 > 1, and b is 1
+bool b = 2 > 1 // true
+
+// In OpenCL C: int b = 2 > 1, and b is 0
+bool b = 2 == 1 // false
+
+// OpenCL C-related note:
+// -1 for signed integer type means that all bits are set
+
+// In OpenCL C: int2 b = (uint2)(0, 1) > (uint2)(0, 0),
+// and b is { 0, -1 }
+bool2 b = uint2(0, 1) > uint2(0, 0); // { false, true }
+
+// In OpenCL C: long2 b = (ulong2)(0, 0) > (ulong2)(0, 0),
+// and b is { 0, 0 }
+bool2 b = ulong2(0, 0) > ulong2(0, 0); // { false, false }
+
+// In OpenCL C: long2 b = (long2)(1, 1) > (long2)(0, 0),
+// and b is { -1, -1 }
+bool2 b = long2(1, 1) > long2(0, 0); // { true, true }
+```
+
+```cpp
+#include  <opencl_relational>
+
+// In OpenCL C: int2 b = isnan((float2)(0.0f)),
+// and b is { 0, 0 }
+bool b = isnan(float2(0.0f)) // { false, false }
+
+// In OpenCL C: long2 b = isfinite((double2)(0.0))
+// and b is { -1, -1 }
+bool b = isfinite(double2(0.0)) // { true, true }
+```
+
+#### OpenCL C++ Specification References
+
+* [OpenCL C++ Programming Language: Expressions](LINK_TO_OPENCLCXX_SPEC_HTML#expressions)
 
 ### <a name="S-OpenCLCXX-EndOfExplicitNamedAddressSpaces"></a>End of explicit named address spaces
 
@@ -567,6 +643,12 @@ kernel void example_kernel(cl::global<int> * input)
 [Address Spaces Library](LINK_TO_OPENCLCXX_SPEC_HTML#address-spaces-library) in
 [OpenCL C++ specification](LINK_TO_OPENCLCXX_SPEC_HTML).
 
+### <a name="S-OpenCLCXXSTL-ImagesAndSamplersLibrary"></a>Images and Samplers Library
+### <a name="S-OpenCLCXXSTL-PipesLibrary"></a>Pipes Librar
+### <a name="S-OpenCLCXXSTL-DeviceEnqueueLibrary"></a>Device Enqueue Library
+### <a name="S-OpenCLCXXSTL-BuiltInFunctions"></a>Changes To Built-in Functions
+### <a name="S-OpenCLCXXSTL-AtomicOperationsLibrary"></a>Atomic Operations Library
+
 ### TODO
 
 * New C++ interfaces for OpenCL C special types
@@ -576,10 +658,13 @@ kernel void example_kernel(cl::global<int> * input)
 * bool and booln types are use in many function instead of int, intn, long, longn
 types
 * all, any and select functions are slightly different because of using booln type
-* (type traits) I think we can mention useful tools for vectors like:
+* New and interesting:
+  * (type traits) I think we can mention useful tools for vectors like:
 `make_vector<T, N>`, `scalar_type<T>` etc.
-* half wrapper?
-* OpenCL C `convert_*` built-in functions were replaced by `convert_cast<>` function template.
+  * Half Wrapper Library
+  * Vector Wrapper Library (We need good examples, use-cases)
+  * Range Library (Wee need good use-cases)
+  * Vector Utilities Library (This is very good!)
 
 ---
 ## <a name="S-OpenCLCXXCompilation"></a>OpenCL C++ Compilation Process
