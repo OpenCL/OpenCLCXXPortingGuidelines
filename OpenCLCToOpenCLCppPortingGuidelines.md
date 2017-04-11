@@ -1,6 +1,6 @@
 # <a name="title"></a>OpenCL C to OpenCL C++ Porting Guidelines
 
-February 14, 2017
+April 11, 2017
 
 Editors:
 
@@ -154,7 +154,6 @@ kernel void example_kernel(global int * input)
   // Compilation error, "local" address space is not defined
   // in OpenCL C++ kernel language
   local int array[256];
-
   // ...
 }
 
@@ -165,7 +164,6 @@ kernel void example_kernel(constant int * input)
   // Compilation error, "private" address space is not defined
   // in OpenCL C++ kernel language
   private int x;
-
   // ...
 }
 ```
@@ -182,14 +180,12 @@ kernel void example_kernel(cl::global_ptr<int[]> input)
 
   uint gid = cl::get_global_id(0);
   array[gid] = input[gid];
-
   // ...
 }
 
 kernel void example_kernel(cl::constant_ptr<int[]> input)
 {
   int x = 0;
-
   // ...
 }
 
@@ -200,7 +196,6 @@ kernel void example_kernel(cl::constant_ptr<int[]> input)
 {
   int x = 0; // Allocated in private memory
   static cl::global<int> w; // Allocated in global memory
-
   // ...
 }
 ```
@@ -238,15 +233,11 @@ kernel function to make it resemble kernel function known from OpenCL C:
 // A kernel function cannot be template function.
 template<class T>
 kernel void example_kernel(cl::global_ptr<T[]> input, uint size)
-{
-  // ...
-}
+{ /* ... */ }
 
 // A kernel function cannot have parameters specified with default values.
 kernel void foo(cl::global_ptr<uint[]> input, uint size = 10)
-{
-  // ...
-}
+{ /* ... */ }
 
 kernel void bar(cl::global_ptr<uint[]> input, uint size)
 {
@@ -256,9 +247,7 @@ kernel void bar(cl::global_ptr<uint[]> input, uint size)
 
 // A kernel function cannot be overloaded.
 kernel void bar(cl::global_ptr<float[]> input, uint size)
-{
-  // ...
-}
+{ /* ... */ }
 ```
 
 #### Examples, correct
@@ -266,16 +255,12 @@ kernel void bar(cl::global_ptr<float[]> input, uint size)
 ```cpp
 template<class T>
 void function_template(cl::global_ptr<T[]> input, uint size)
-{
-  // ...
-}
+{ /* ... */ }
 
 // Specialization for T = float
 template<>
 void function_template(cl::global_ptr<float[]> input, uint size)
-{
-  // ...
-}
+{ /* ... */ }
 
 kernel void kernel_uint(cl::global_ptr<uint[]> input, uint size)
 {
@@ -489,12 +474,8 @@ kernel void reinterpret_bar_foo()
   // Legal. Result is implementation-defined.
   short2 j = as_type<short2>(i);
 
-  int4 i;
-  // Legal. Result is implementation-defined.
-  short8 j = as_type<short8>(i);
-
   float4 f;
-  // Error.  Result and operand have different sizes
+  // Error: result and operand have different sizes
   double4 g = as_type<double4>(f);
 
   float4 f;
@@ -572,15 +553,11 @@ kernel void example_kernel(cl::global_ptr<int[]> input)
 
 // Explicit address space storage object passed by reference
 kernel void example_kernel(cl::global<cl::array<int, 5>>& input)
-{
-
-}
+{ /* ... */ }
 
 // Explicit address space storage object passed by pointer
 kernel void example_kernel(cl::global<int> * input)
-{
-
-}
+{ /* ... */ }
 ```
 
 ##### Note
