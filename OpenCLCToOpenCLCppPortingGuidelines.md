@@ -16,14 +16,14 @@ hard-to-detect bugs when porting from OpenCL C to OpenCL C++.
 
 Comments and suggestions for improvements are most welcome.
 
-**[In a nutshell](#S-InANutshell)**
+**[In a Nutshell](#S-InANutshell)**
 
 **[Differences](#S-Differences)**:
 
 * [OpenCL C++ Programming Language](#S-OpenCLCXX):
-  * [OpenCL C vector literals](#S-OpenCLCXX-VectorLiterals)
-  * [<code>bool<i>N</i></code> type](#S-OpenCLCXX-BoolNType)
-  * [End of explicit named address spaces](#S-OpenCLCXX-EndOfExplicitNamedAddressSpaces)
+  * [OpenCL C Vector Literals](#S-OpenCLCXX-VectorLiterals)
+  * [<code>bool<i>N</i></code> Type](#S-OpenCLCXX-BoolNType)
+  * [End Of Explicit Named Address Spaces](#S-OpenCLCXX-EndOfExplicitNamedAddressSpaces)
   * [Kernel Function Restrictions](#S-OpenCLCXX-KernelRestrictions)
   * [Kernel Parameter Restrictions](#S-OpenCLCXX-KernelParamsRestrictions)
   * [General Restrictions](#S-OpenCLCXX-GeneralRestrictions)
@@ -35,14 +35,15 @@ Comments and suggestions for improvements are most welcome.
   * [Images and Samplers Library](#S-OpenCLCXXSTL-ImagesAndSamplersLibrary)
   * [Pipes Library](#S-OpenCLCXXSTL-PipesLibrary)
   * [Device Enqueue Library](#S-OpenCLCXXSTL-DeviceEnqueueLibrary)
-  * [Changes To Built-in Functions](#S-OpenCLCXXSTL-BuiltInFunctions)
+  * [Relational Functions](#S-OpenCLCXXSTL-RelationalFunctions)
+  * [Vector Data Load and Store Functions](#S-OpenCLCXXSTL-VectorDataLoadandStoreFunctions)
   * [Atomic Operations Library](#S-OpenCLCXXSTL-AtomicOperationsLibrary)
 * [OpenCL C++ Compilation Process](#S-OpenCLCXXCompilation):
   * TODO
 
 **[Bibliography](#S-Bibliography)**
 
-# <a name="S-InANutshell"></a>In a nutshell
+# <a name="S-InANutshell"></a>In a Nutshell
 
 ToDo: Add a "quick reference" table for differences between OpenCL C and OpenCL C++.
 
@@ -50,7 +51,7 @@ ToDo: Add a "quick reference" table for differences between OpenCL C and OpenCL 
 
 ## <a name="S-OpenCLCXX"></a>OpenCL C++ Programming Language
 
-### <a name="S-OpenCLCXX-VectorLiterals"></a>OpenCL C vector literals
+### <a name="S-OpenCLCXX-VectorLiterals"></a>OpenCL C Vector Literals
 
 Vector literals, expression used for creating vectors from a list of scalars,
 vectors or a mixture thereof, known from OpenCL C are not part of the OpenCL C++
@@ -115,7 +116,7 @@ float4 f = float4(float2(1.0f, 2.0f), float2(3.0f, 4.0f));
 float4 f = float4(1.0f, float2(2.0f, 3.0f), 4.0f);
 ```
 
-### <a name="S-OpenCLCXX-BoolNType"></a><code>bool<i>N</i></code> type
+### <a name="S-OpenCLCXX-BoolNType"></a><code>bool<i>N</i></code> Type
 
 OpenCL C++ introduces new built-in vector type: `boolN` (where `N` is 2, 4, 8, or 16). This addition change
 resolves problem with using the relational (`<`, `>`, `<=`, `>=`, `==`, `!=`) and the logical operators (`!`, `&&`, `||`) with built-in vector types.
@@ -139,9 +140,9 @@ relation is `false` and `–1` (i.e. all bits set) if the specified relation is 
 operators always return `0` if either argument is not a number (`NaN`).
 
 
-Including `boolN` vector types in OpenCL C++ also caused changes in signatures and/or behavior of many
-built-in functions like: `all()`, `any()` and `select()`.
-See [Changes To Built-in Functions](#S-OpenCLCXXSTL-BuiltInFunctions) for more details.
+Including `boolN` vector types in OpenCL C++ also caused changes in signatures and/or behavior of
+built-in relational functions like: `all()`, `any()` and `select()`.
+See [Relational Functions](#S-OpenCLCXXSTL-RelationalFunctions) section for more details.
 
 #### Examples
 
@@ -186,7 +187,7 @@ bool b = isfinite(double2(0.0)) // { true, true }
 
 * [OpenCL C++ Programming Language: Expressions](LINK_TO_OPENCLCXX_SPEC_HTML#expressions)
 
-### <a name="S-OpenCLCXX-EndOfExplicitNamedAddressSpaces"></a>End of explicit named address spaces
+### <a name="S-OpenCLCXX-EndOfExplicitNamedAddressSpaces"></a>End Of Explicit Named Address Spaces
 
 [OpenCL C++ 1.0 Specification in Address Spaces section](LINK_TO_OPENCLCXX_SPEC_HTML#address-spaces) says:
 >The OpenCL C++ kernel language doesn’t introduce any explicit named address spaces, but they are
@@ -644,15 +645,16 @@ kernel void example_kernel(cl::global<int> * input)
 [OpenCL C++ specification](LINK_TO_OPENCLCXX_SPEC_HTML).
 
 ### <a name="S-OpenCLCXXSTL-ImagesAndSamplersLibrary"></a>Images and Samplers Library
-### <a name="S-OpenCLCXXSTL-PipesLibrary"></a>Pipes Librar
+### <a name="S-OpenCLCXXSTL-PipesLibrary"></a>Pipes Library
 ### <a name="S-OpenCLCXXSTL-DeviceEnqueueLibrary"></a>Device Enqueue Library
-### <a name="S-OpenCLCXXSTL-BuiltInFunctions"></a>Changes To Built-in Functions
+### <a name="S-OpenCLCXXSTL-RelationalFunctions"></a>Relational Functions
+### <a name="S-OpenCLCXXSTL-VectorDataLoadandStoreFunctions"></a>Vector Data Load and Store Functions
 ### <a name="S-OpenCLCXXSTL-AtomicOperationsLibrary"></a>Atomic Operations Library
 
 ### TODO
 
 * New C++ interfaces for OpenCL C special types
-  * pipe is not a keyword anymore, pips is a class now
+  * pipe is not a keyword anymore, pipe is a class now
   * Atomic integer and floating-point types are now classes (but seem to be compatible
   with OpenCL C via typedefs)
 * bool and booln types are use in many function instead of int, intn, long, longn
@@ -673,8 +675,8 @@ types
 
 * Now there are two compilers: front-compiler (OpenCL C++ to SPIR-V) and
 back-compiler (SPIR-V to device machine code).
-I think it's worth explaining it to the user (with some examples).
-* New attributes: max_size, required_num_sub_groups, ivdep
+It's worth explaining it to the user (with some examples).
+* New attributes: max\_size, required\_num\_sub\_groups, ivdep
 
 
 # <a name="S-Bibliography"></a>Bibliography
