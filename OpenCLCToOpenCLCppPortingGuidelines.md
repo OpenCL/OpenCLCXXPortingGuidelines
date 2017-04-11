@@ -28,6 +28,8 @@ Comments and suggestions for improvements are most welcome.
   * [End of explicit named address spaces](#S-OpenCLCXX-EndOfExplicitNamedAddressSpaces)
 * [OpenCL C++ Standard Library](#S-OpenCLCXXSTL):
   * [Namespace cl::](#S-OpenCLCXXSTL-NamespaceCL)
+  * [Conversions Library (`convert_*()`)](#S-OpenCLCXXSTL-ConversionsLibrary)
+  * [Reinterpreting Data Library (<code>as&#95;<i>type</i>()</code>)](#S-OpenCLCXXSTL-ReinterpretingDataLibrary)
   * [Address Spaces Library](#S-OpenCLCXXSTL-AddressSpacesLibrary)
   * TODO
 * [OpenCL C++ Compilation Process](#S-OpenCLCXXCompilation):
@@ -118,7 +120,7 @@ The developers should be aware of them and know their limitations.
 
 That means that instead of using keywords `global`, `constant`, `local`, and `private`, in order
 to explicitly specify address space for variable or pointer you have to use address space pointers
-and address space storage classes. 
+and address space storage classes.
 
 ##### Note
 > Go to [Address Spaces Library](#S-OpenCLCXXSTL-AddressSpacesLibrary) section of
@@ -129,10 +131,12 @@ an object is declared:
 
 * If a variable is declared in program scope, with `static` or `extern` specifier and the standard
 library storage class
-(see [Explicit address space storage classes](LINK_TO_OPENCLCXX_SPEC_HTML#explicit-address-space-storage-classes) section)
+(see[Explicit address space storage classes](LINK_TO_OPENCLCXX_SPEC_HTML#explicit-address-space-storage-classes)
+section)
 is not used, the variable is allocated in the global memory of a device.
 * If a variable is declared in function scope, without static specifier and the standard library storage class
-(see [Explicit address space storage classes](LINK_TO_OPENCLCXX_SPEC_HTML#explicit-address-space-storage-classes) section)
+(see [Explicit address space storage classes](LINK_TO_OPENCLCXX_SPEC_HTML#explicit-address-space-storage-classes)
+section)
 is not used, the variable is allocated in the private memory of a device.
 
 #### OpenCL C++ Specification References
@@ -143,22 +147,22 @@ is not used, the variable is allocated in the private memory of a device.
 #### Examples, bad (OpenCL C-style)
 
 ```cpp
-// Compilation error, "global" address space is not defined 
+// Compilation error, "global" address space is not defined
 // in OpenCL C++ kernel language
-kernel void example_kernel(global int * input) 
+kernel void example_kernel(global int * input)
 {
-  // Compilation error, "local" address space is not defined 
+  // Compilation error, "local" address space is not defined
   // in OpenCL C++ kernel language
   local int array[256];
-  
+
   // ...
 }
 
-// Compilation error, "constant" address space is not defined 
+// Compilation error, "constant" address space is not defined
 // in OpenCL C++ kernel language
-kernel void example_kernel(constant int * input) 
+kernel void example_kernel(constant int * input)
 {
-  // Compilation error, "private" address space is not defined 
+  // Compilation error, "private" address space is not defined
   // in OpenCL C++ kernel language
   private int x;
 
@@ -172,17 +176,17 @@ kernel void example_kernel(constant int * input)
 #include <opencl_memory>
 #include <opencl_work_item>
 
-kernel void example_kernel(cl::global_ptr<int[]> input) 
+kernel void example_kernel(cl::global_ptr<int[]> input)
 {
   cl::local<int[256]> array;
 
   uint gid = cl::get_global_id(0);
   array[gid] = input[gid];
-  
+
   // ...
 }
 
-kernel void example_kernel(cl::constant_ptr<int[]> input) 
+kernel void example_kernel(cl::constant_ptr<int[]> input)
 {
   int x = 0;
 
@@ -192,7 +196,7 @@ kernel void example_kernel(cl::constant_ptr<int[]> input)
 int y; // Allocated in global memory
 static int z; // Allocated in global memory
 
-kernel void example_kernel(cl::constant_ptr<int[]> input) 
+kernel void example_kernel(cl::constant_ptr<int[]> input)
 {
   int x = 0; // Allocated in private memory
   static cl::global<int> w; // Allocated in global memory
@@ -202,7 +206,11 @@ kernel void example_kernel(cl::constant_ptr<int[]> input)
 ```
 
 ##### Note
-> More examples on address spaces can be found in subsections [3.4.5. Restrictions](LINK_TO_OPENCLCXX_SPEC_HTML#restrictions-2) and [3.4.6. Examples](LINK_TO_OPENCLCXX_SPEC_HTML#examples-3) of section [Address Spaces Library](LINK_TO_OPENCLCXX_SPEC_HTML#address-spaces-library) in [OpenCL C++ specification](LINK_TO_OPENCLCXX_SPEC_HTML).
+> More examples on address spaces can be found in subsections
+[3.4.5. Restrictions](LINK_TO_OPENCLCXX_SPEC_HTML#restrictions-2) and
+[3.4.6. Examples](LINK_TO_OPENCLCXX_SPEC_HTML#examples-3) of section
+[Address Spaces Library](LINK_TO_OPENCLCXX_SPEC_HTML#address-spaces-library) in
+[OpenCL C++ specification](LINK_TO_OPENCLCXX_SPEC_HTML).
 
 ### <a name="S-OpenCLCXX-KernelRestrictions"></a>Kernel Function Restrictions
 
@@ -291,9 +299,9 @@ the kernel parameters must meet the following requirements:
 * Types cannot be declared with the built-in bool scalar type, vector type or a class that
 contain bool scalar or vector type fields.
 * Types cannot be structures and classes with bit field members.
-* Marker types must be passed by value 
-([Marker Types section](LINK_TO_OPENCLCXX_SPEC_HTML#marker-types)). 
-* `global`, `constant`, `local` storage classes can be passed only by reference or pointer. 
+* Marker types must be passed by value
+([Marker Types section](LINK_TO_OPENCLCXX_SPEC_HTML#marker-types)).
+* `global`, `constant`, `local` storage classes can be passed only by reference or pointer.
 More details in [Explicit address space storage classes](LINK_TO_OPENCLCXX_SPEC_HTML#explicit-address-space-storage-classes)
 section.
 * Pointers and references must point to one of the following address spaces: global, local
@@ -353,7 +361,8 @@ namespace `cl::`.
 
 #### Solution
 
-Adding a using-directive `using namespace cl;` right after including all required headers can reduce work needed to port OpenCL C programs to OpenCL C++.
+Adding a using-directive `using namespace cl;` right after including all required headers
+can reduce work needed to port OpenCL C programs to OpenCL C++.
 
 #### Examples
 
@@ -387,6 +396,115 @@ kernel void foo(global_ptr<int[]> input, uint size)
 }
 ```
 
+### <a name="S-OpenCLCXXSTL-ConversionsLibrary"></a>Conversions Library
+
+OpenCL C <code>convert&#95;<i>type</i>&lt;<i>&#95;sat</i>&gt;&lt;<i>&#95;roundingMode</i>&gt;()</code>
+and <code>convert&#95;<i>typeN</i>&lt;<i>&#95;sat</i>&gt;&lt;<i>&#95;roundingMode</i>&gt;()</code> built-in
+functions were replaced in OpenCL C++ with `convert_cast<>` function template. The behavior of the conversion
+may be modified by one or two optional modifiers that specify saturation for out-of-range
+inputs and rounding behavior.
+
+**Rounding Modes**
+
+```cpp
+namespace cl
+{
+  enum class rounding_mode
+  {
+    rte, // Round to nearest even
+    rtz, // Round toward zero
+    rtp, // Round toward positive infinity
+    rtn  // Round toward negative infinity
+  };
+}
+```
+
+##### Note
+> If a rounding mode is not specified, conversions to integer type use the `rtz` (round toward zero)
+rounding mode and conversions to floating-point type uses the `rte` rounding mode.
+
+#### OpenCL C++ Specification References
+
+* [OpenCL C++ Standard Library: Conversions Library](LINK_TO_OPENCLCXX_SPEC_HTML#conversions-library)
+
+#### Examples
+
+```cpp
+#include <opencl_convert>
+using namespace cl; // No need for cl:: prefix after this using-directive
+
+kernel void covert_foo_bar()
+{
+  int4 i { -1, 0, 1, 2 };
+  float4 f { -1.5f, -0.5f, 0.5f, 1.5f};
+
+  // Convert ints to floats using the default rounding mode (rte).
+  // In OpenCL C: convert_float4_rtp(i)
+  float4 f1 = convert_cast<float4>(i);
+
+  // In OpenCL C: convert_float4_rtp(i)
+  float4 f2 = convert_cast<float4, rounding_mode::rtp>(i);
+
+  // In OpenCL C: convert_int4_sat(f)
+  int4 i1 = convert_cast<int4, saturate::on>(f);
+
+  // In OpenCL C: convert_int4_sat_rte(f)
+  int4 i1 = convert_cast<int4, rounding_mode::rte, saturate::on>(f);
+}
+```
+
+### <a name="S-OpenCLCXXSTL-ReinterpretingDataLibrary"></a>Reinterpreting Data Library
+
+OpenCL C <code>as&#95;<i>type</i>()</code> and <code>as&#95;<i>typeN</i>()</code> operators used for reinterpreting bits in a data type as
+another data type in OpenCL were replaced in OpenCL C++ with `TargetType as_type(InputType const&)` function template.
+
+##### Note
+> All data types described in
+[Device built-in scalar data types](LINK_TO_OPENCLCXX_SPEC_HTML#device_builtin_scalar_data_types)
+and [Device built-in vector data types](LINK_TO_OPENCLCXX_SPEC_HTML#device_builtin_vector_data_types)
+tables (except `bool` and `void`) may be also reinterpreted as another data type of the same size
+using the `as_type()` function template for scalar and vector data types.
+
+#### OpenCL C++ Specification References
+
+* [OpenCL C++ Standard Library: Reinterpreting Data Library](LINK_TO_OPENCLCXX_SPEC_HTML#reinterpreting-data-library)
+
+#### Examples
+
+```cpp
+#include <opencl_reinterpret>
+using namespace cl; // No need for cl:: prefix after this using-directive
+
+kernel void reinterpret_bar_foo()
+{
+  float f = 1.0f;
+  uint u = as_type<uint>(f); // Legal. Contains:  0x3f800000
+
+  float4 f = float4(1.0f, 2.0f, 3.0f, 4.0f);
+  // Legal. Contains:
+  // int4(0x3f800000, 0x40000000, 0x40400000, 0x40800000)
+  int4 i = as_type<int4>(f);
+
+  int i;
+  // Legal. Result is implementation-defined.
+  short2 j = as_type<short2>(i);
+
+  int4 i;
+  // Legal. Result is implementation-defined.
+  short8 j = as_type<short8>(i);
+
+  float4 f;
+  // Error.  Result and operand have different sizes
+  double4 g = as_type<double4>(f);
+
+  float4 f;
+  // Legal.
+  // g.xyz will have same values as f.xyz.
+  // g.w is undefined
+  float3 g = as_type<float3>(f);
+}
+```
+
 ### <a name="S-OpenCLCXXSTL-AddressSpacesLibrary"></a>Address Spaces Library
 
 As mentioned in [End of explicit named address spaces](#S-OpenCLCXX-EndOfExplicitNamedAddressSpaces), in OpenCL
@@ -402,7 +520,7 @@ C++ explicit named address spaces known from OpenCL C were replaced by explicit 
   * The variables at class scope must be declared with `static` specifier.
 * `cl::priv<T> x` - allocated in private memory.
   * The priv storage class cannot be used to declare variables in the program scope, with static specifier or extern specifier.
-* `cl::constant<T> x {0}` - allocated in global memory, read-only.
+* `cl::constant<T> x` - allocated in global memory, read-only.
   * The constant storage class can only be used to declare variables at program, kernel and class scope.
   * The variables at class scope must be declared with static specifier.
 
@@ -444,7 +562,7 @@ cl::constant<int> z {0}; // Allocated in global address space, read-only,
 cl::local<cl::array<int, 5>> w = { 10 };
 
 // Explicit address space class object passed by value
-kernel void example_kernel(cl::global_ptr<int[]> input) 
+kernel void example_kernel(cl::global_ptr<int[]> input)
 {
   cl::local<int[256]> array;
 
@@ -466,9 +584,11 @@ kernel void example_kernel(cl::global<int> * input)
 ```
 
 ##### Note
-> More examples on address spaces can be found in subsections [3.4.5. Restrictions](LINK_TO_OPENCLCXX_SPEC_HTML#restrictions-2) and [3.4.6. Examples](LINK_TO_OPENCLCXX_SPEC_HTML#examples-3) of section [Address Spaces Library](LINK_TO_OPENCLCXX_SPEC_HTML#address-spaces-library) in [OpenCL C++ specification](LINK_TO_OPENCLCXX_SPEC_HTML).
-
-
+> More examples on address spaces can be found in subsections
+[3.4.5. Restrictions](LINK_TO_OPENCLCXX_SPEC_HTML#restrictions-2) and
+[3.4.6. Examples](LINK_TO_OPENCLCXX_SPEC_HTML#examples-3) of section
+[Address Spaces Library](LINK_TO_OPENCLCXX_SPEC_HTML#address-spaces-library) in
+[OpenCL C++ specification](LINK_TO_OPENCLCXX_SPEC_HTML).
 
 ### TODO
 
