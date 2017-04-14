@@ -32,6 +32,7 @@ Comments and suggestions for improvements are most welcome.
   * [Conversions Library (`convert_*()`)](#S-OpenCLCXXSTL-ConversionsLibrary)
   * [Reinterpreting Data Library (<code>as&#95;<i>type</i>()</code>)](#S-OpenCLCXXSTL-ReinterpretingDataLibrary)
   * [Address Spaces Library](#S-OpenCLCXXSTL-AddressSpacesLibrary)
+  * [Marker Types](#S-OpenCLCXXSTL-MarkerTypes)
   * [Images and Samplers Library](#S-OpenCLCXXSTL-ImagesAndSamplersLibrary)
   * [Pipes Library](#S-OpenCLCXXSTL-PipesLibrary)
   * [Device Enqueue Library](#S-OpenCLCXXSTL-DeviceEnqueueLibrary)
@@ -644,7 +645,221 @@ kernel void example_kernel(cl::global<int> * input)
 [Address Spaces Library](LINK_TO_OPENCLCXX_SPEC_HTML#address-spaces-library) in
 [OpenCL C++ specification](LINK_TO_OPENCLCXX_SPEC_HTML).
 
+### <a name="S-OpenCLCXXSTL-MarkerTypes"></a>Marker Types
+
+Like OpenCL C, OpenCL C++ includes special types - images, pipes.
+All those types are considered marker types.
+Being a marker type comes with the following set of restrictions:
+
+* Marker types have the default constructor deleted.
+* Marker types have all default copy and move assignment operators deleted.
+* Marker types have address-of operator deleted.
+* Marker types cannot be used in divergent control flow. It can result in undefined behavior.
+* Size of marker types is undefined.
+
+All marker types can be passed to functions only by a reference.
+
+#### OpenCL C++ Specification References
+
+* [OpenCL C++ Standard Library: Marker Types](LINK_TO_OPENCLCXX_SPEC_HTML#marker-types)
+
+#### Examples
+
+```cpp
+#include <opencl_image>
+#include <opencl_work_item>
+using namespace cl;
+
+float4 bar_val(image1d<float4> img) {
+    return img.read({get_global_id(0), get_global_id(1)});
+}
+
+float4 bar_ref(image1d<float4>& img) {
+    return img.read({get_global_id(0), get_global_id(1)});
+}
+
+kernel void foo(image1d<float4> img)
+{
+    // Error: marker type cannot be passed by value
+    float4 val = bar_val(img);
+
+    // Correct, passing marker type by reference
+    float4 val = bar_ref(img);
+}
+```
+
+```cpp
+#include <opencl_image>
+#include <opencl_work_item>
+using namespace cl;
+
+float4 bar(image1d<float4> img) {
+    return img.read({get_global_id(0), get_global_id(1)});
+}
+
+kernel void foo(image1d<float4> img1, image1d<float4> img2)
+{
+    // Error: marker type cannot be declared in the kernel
+    image1d<float4> img3;
+
+    // Error: marker type cannot be assigned
+    img1 = img2;
+
+    // Error: taking address of marker type
+    image1d<float4> *imgPtr = &img1;
+
+    // Undefined behavior: size of marker type is not defined
+    size_t s = sizeof(img1);
+
+    // Undefined behavior: divergent control flow
+    float4 val = bar(get_global_id(0) ? img1: img2);
+}
+```
+
 ### <a name="S-OpenCLCXXSTL-ImagesAndSamplersLibrary"></a>Images and Samplers Library
+
+Images are another part of the OpenCL that changed a lot compared to OpenCL C.
+Instead of image types and built-in image read/write functions in OpenCL C++ there are
+image class templates with corresponding methods. Image and sampler class templates are [marker types](#S-OpenCLCXXSTL-MarkerTypes).
+
+#### Image types
+
+| OpenCL C              	| OpenCL C++              	|
+|-----------------------	|-------------------------	|
+| image1d_t             	| cl::image1d             	|
+| image1d\_buffer\_t      	| cl::image1d_buffer      	|
+| image1d\_array\_t       	| cl::image1d_array       	|
+| image2d_t             	| cl::image2d             	|
+| image2d\_array\_t       	| cl::image2d_array       	|
+| image2d\_depth\_t       	| cl::image2d_depth       	|
+| image2d\_array\_depth_t 	| cl::image2d\_array\_depth 	|
+| image3d_t             	| cl::image3d             	|
+| sampler_t             	| cl::sampler             	|
+
+To instantiate image template class user has to specify image element type (which is
+type returned when reading from an image, and required when writing pixel to an image),
+and access mode (`cl::image_access::read` is the default access mode).
+
+#### Image dimension
+
+Based on the dimension of an image different methods are available. All image types have
+`int width()` method, images of dimension 2 or 3 have `int height()`, 3D images have
+`int depth()`, and arrayed images have one additional method - `int array_size()`.
+See subsection [Image dimension](LINK_TO_OPENCLCXX_SPEC_HTML#image-dimension)
+of OpenCL C++ Specification for more details.
+
+#### Image element type
+
+Depending on the type of an image different types are allowed to be specified as
+image element type template parameter. Image type with invalid pixel type is ill formed.
+See subsection [Image element types](LINK_TO_OPENCLCXX_SPEC_HTML#image-element-types)
+of OpenCL C++ Specification for more details.
+
+```cpp
+// OpenCL C++
+kernel void openclcxx(image2d<float4, // image element type
+                              image_access::read // access mode
+                             > img)
+{ /* ... */ }
+
+// OpenCL C
+kernel void openclc(read_only image2d_t img) // read_only keyword sets access mode
+                                             // image element type not defined
+{ /* ... */ }
+```
+
+#### Image access mode
+
+Based on the image access mode different read and write methods are present in
+the instantiate image class. See subsection [Image access](LINK_TO_OPENCLCXX_SPEC_HTML#image-access) of OpenCL C++ Specification for more details.
+
+```cpp
+namespace cl
+{
+  enum class image_access
+  {
+      sample,
+      read,
+      write,
+      read_write
+  };
+}
+```
+
+#### Sampler
+
+Like in OpenCL C, in OpenCL C++ there only two ways of acquiring a sampler inside of a kernel.
+One is to pass it as a kernel parameter from host using `clSetKernelArg` function,
+the other is to create `cl::sampler` using `make_sampler` function in the kernel code.
+Sample can be either a program scope variable, or
+
+```cpp
+template <addressing_mode A, normalized_coordinates C, filtering_mode F>
+constexpr sampler make_sampler();
+```
+
+Sampler parameters and their behavior are described in subsection
+[Sampler Modes](LINK_TO_OPENCLCXX_SPEC_HTML#sampler-modes) of
+OpenCL C++ Specification.
+
+#### OpenCL C++ Specification References
+
+* [OpenCL C++ Standard Library: Images and Samplers Library](LINK_TO_OPENCLCXX_SPEC_HTML#images-and-samplers-library)
+
+#### Examples
+
+```cpp
+// OpenCL C++
+#include <opencl_image>
+#include <opencl_work_item>
+using namespace cl;
+
+using my_image1d_type = image1d<float4, // image element type
+                                image_access::write>; // access mode
+
+using my_image2d_type = image2d<float4>; // access mode is image_access::read
+
+kernel void openclcxx(my_image1d_type img1d, my_image2d_type img2d)
+{
+    const int  1d_coords(get_global_id(0));
+    const int2 2d_coords(get_global_id(0), get_global_id(1));
+
+    float4 val1d(0.0f);
+    // 1) write() is enabled because the access mode of my_image1d_type
+    //    is image_access::write
+    // 2) write() takes int value as pixel coordinates because my_image1d_type
+    //    is a 1d image type
+    // 3) write() takes float4 value as pixel value because float4 is the image
+    //    element type of my_image1d_type
+    img1d.write(1d_coords, val1d);
+
+    // 1) read() is enabled because the access mode of my_image2d_type
+    //    is image_access::read
+    // 2) read() takes int2 as an input argument because my_image2d_type
+    //    is a 2d image type
+    // 3) read() returns float4 because float4 is the image element type
+    //    of my_image2d_type
+    float4 val2d = img2d.read(coords);
+}
+```
+
+```cpp
+// OpenCL C
+kernel void openclc(write_only image1d_t img1d, // write_only keyword sets access mode
+                    read_only  image2d_t img2d) // read_only keyword sets access mode
+{
+    const int  1d_coords = get_global_id(0);
+    const int2 2d_coords = (int2)(get_global_id(0), get_global_id(1));
+
+    float4 val1d = (float4)(0.0f);
+    write_imagef(img, 1d_coords, val1d);
+
+    // float4 read_imagef(image2d_t, int2) function is used to
+    // read from img 2d image.
+    float4 val2d = read_imagef(img, coords);
+}
+```
+
 ### <a name="S-OpenCLCXXSTL-PipesLibrary"></a>Pipes Library
 ### <a name="S-OpenCLCXXSTL-DeviceEnqueueLibrary"></a>Device Enqueue Library
 ### <a name="S-OpenCLCXXSTL-RelationalFunctions"></a>Relational Functions
