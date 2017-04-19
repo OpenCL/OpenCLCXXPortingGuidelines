@@ -1046,6 +1046,177 @@ kernel void error_kernel()
 ```
 
 ### <a name="S-OpenCLCXXSTL-DeviceEnqueueLibrary"></a>Device Enqueue Library
+
+When it comes to enqueuing a kernel without host interaction, the biggest difference between OpenCL C
+and OpenCL C++ is that in OpenCL C++ enqueued kernel can be a lambda expression or a function,
+whereas in OpenCL C it is defined using block syntax.
+
+All functions except function which returns default device queue and kernel query functions
+were moved to appropriate classes as their methods.
+See [Header <opencl_device_queue> Synopsis](LINK_TO_OPENCLCXX_SPEC_HTML#header-opencl_device_queue-synopsis)
+subsections of OpenCL C++ specification.
+
+#### Device Queue
+
+In OpenCL C++ `cl::device_queue` class represents device queue (`queue_t` in OpenCL C).
+`cl::device_queue` is a marker type (see [Marker Types](#S-OpenCLCXXSTL-MarkerTypes)).
+
+| OpenCL C              	| OpenCL C++              	|
+|-----------------------	|-------------------------	|
+| queue\_t             	  | cl::device\_queue         |
+
+```cpp
+namespace cl
+{
+  struct device_queue: marker_type
+  {
+    // ...
+
+    template <class Fun, class... Args>
+    enqueue_status enqueue_kernel(enqueue_policy flag,
+                                  const ndrange &ndrange,
+                                  Fun fun,
+                                  Args... args) noexcept;
+
+    // In OpenCL C:
+    // int enqueue_kernel(queue_t queue,
+    //                    kernel_enqueue_flags_t flags,
+    //                    const ndrange_t ndrange,
+    //                    void (^block)(local void *, ...),
+    //                    uint size0, ...);
+
+    // ...
+  };
+}
+```
+
+##### Note
+>`args` are the arguments that will be passed to `fun` when kernel will be enqueued with
+the exception for `local_ptr` parameters. For local pointers user must supply the size of
+local memory that will be allocated using <code>local\_ptr<T>::size\_type{<i>num_elements</i>}</code>.
+In OpenCL C user has to pass `uint` value for a corresponding local pointer, which specifies
+the size of a local memory accessible using that local pointer.
+
+#### Event
+
+In OpenCL C++ `cl::event` class represents device-side event (`clk_event_t` in OpenCL C).
+
+| OpenCL C              	| OpenCL C++              	|
+|-----------------------	|-------------------------	|
+| clk\_event\_t      	    | cl::event      	          |
+
+`cl::event` has the same possible states as `clk_event_t`, however in OpenCL C++ error is
+not represented by any negative value, but rather by `cl::event_status::error` enum.
+
+| OpenCL C              	| OpenCL C++              	| Description              	|
+|-----------------------	|-------------------------	|-------------------------	|
+| CL\_SUBMITTED     	| cl::event\_status::submitted      	| Initial status of a user event |
+| CL\_COMPLETE      	| cl::event\_status::complete      	| |
+| Any negative integer value      	| cl::event\_status::error      	| Status indicating an error |
+
+See [Event Class Methods](LINK_TO_OPENCLCXX_SPEC_HTML#event-class-methods) and
+[Event Status](LINK_TO_OPENCLCXX_SPEC_HTML#event-status) subsections of OpenCL C++ specification.
+
+#### Enqueue Policy
+
+Available enqueue policies did not changed compared to OpenCL C.
+In OpenCL C enqueue policy type was `kernel_enqueue_flags_t` enum, in OpenCL C++ it is
+`cl::enqueue_policy` enum class.
+
+| OpenCL C              	| OpenCL C++              	|
+|-----------------------	|-------------------------	|
+| CLK_ENQUEUE_FLAGS_NO_WAIT     	| cl::enqueue\_polic::no\_wait     	|
+| CLK_ENQUEUE_FLAGS_WAIT_KERNEL       	| cl::enqueue\_polic::wait\_kernel      	|
+| CLK_ENQUEUE_FLAGS_WAIT_WORK_GROUP      	| cl::enqueue\_polic::wait\_work\_group      	|
+
+See [Enqueue Policy](LINK_TO_OPENCLCXX_SPEC_HTML#enqueue-policy) subsection of OpenCL C++ specification.
+
+#### Requirements
+
+Functor and lambda objects passed to `enqueue_kernel()` method of device queue has to follow
+specific restrictions:
+
+* It has to be trivially copyable.
+* It has to be trivially copy constructible.
+* It has to be trivially destructible.
+
+Code enqueuing function objects that do not meet this criteria is ill-formed.
+
+#### OpenCL C++ Specification References
+
+* [OpenCL C++ Standard Library: Device Enqueue Library](LINK_TO_OPENCLCXX_SPEC_HTML#device-enqueue-library)
+  * [Restrictions](LINK_TO_OPENCLCXX_SPEC_HTML#restrictions-6)
+  * [Examples](LINK_TO_OPENCLCXX_SPEC_HTML#examples-7)
+* [OpenCL C++ Standard Library: Marker Types](LINK_TO_OPENCLCXX_SPEC_HTML#marker-types)
+
+#### Examples
+
+Block syntax vs. lambda expression:
+
+```cpp
+// OpenCL C++
+#include <opencl_device_queue>
+#include <opencl_memory>
+
+kernel void my_func(cl::global_ptr<int> a, cl::global_ptr<int> b, cl::global_ptr<int> c)
+{
+  // ...
+  auto dq = cl::get_default_device_queue();
+  dq.enqueue_kernel(
+    cl::enqueue_polic::no_wait,
+    cl::ndrange({10, 10}),
+    [=](){          //
+      *a = *b + *c; // Lambda expression
+    }               //
+  );
+  // ...
+}
+```
+
+```cpp
+// OpenCL C
+kernel void my_func(global int *a, global int *b, global int *c)
+{
+  // ...
+  enqueue_kernel(
+    get_default_queue(),
+    CLK_ENQUEUE_FLAGS_NO_WAIT,
+    ndrange_2D(1, 1),
+    ^{              //
+      *a = *b + *c; // Block syntax
+    }               //
+  );
+  // ...
+}
+```
+
+Enqueuing a functor:
+
+```cpp
+// OpenCL C++
+#include <opencl_device_queue>
+#include <opencl_memory>
+
+struct my_functor {
+    void operator ()(cl::local_ptr<ushort16[]> p, int x) const
+    { /* ... */ }
+};
+
+kernel void my_func(cl::device_queue q)
+{
+  // ...
+  my_functor f;
+  dq.enqueue_kernel(
+    cl::enqueue_polic::no_wait,
+    cl::ndrange(1),
+    f, // functor
+    cl::local_ptr<ushort16[]>::size_type{10}, // define size of p
+    2 // x
+  );
+  // ...
+}
+```
+
 ### <a name="S-OpenCLCXXSTL-RelationalFunctions"></a>Relational Functions
 ### <a name="S-OpenCLCXXSTL-VectorDataLoadandStoreFunctions"></a>Vector Data Load and Store Functions
 ### <a name="S-OpenCLCXXSTL-AtomicOperationsLibrary"></a>Atomic Operations Library
