@@ -726,15 +726,15 @@ image class templates with corresponding methods. Image and sampler class templa
 
 | OpenCL C              	| OpenCL C++              	|
 |-----------------------	|-------------------------	|
-| image1d_t             	| cl::image1d             	|
-| image1d\_buffer\_t      	| cl::image1d_buffer      	|
-| image1d\_array\_t       	| cl::image1d_array       	|
-| image2d_t             	| cl::image2d             	|
-| image2d\_array\_t       	| cl::image2d_array       	|
-| image2d\_depth\_t       	| cl::image2d_depth       	|
-| image2d\_array\_depth_t 	| cl::image2d\_array\_depth 	|
-| image3d_t             	| cl::image3d             	|
-| sampler_t             	| cl::sampler             	|
+| image1d\_t             	| cl::image1d             	|
+| image1d\_buffer\_t      	| cl::image1d\_buffer      	|
+| image1d\_array\_t       	| cl::image1d\_array       	|
+| image2d\_t             	| cl::image2d             	|
+| image2d\_array\_t       	| cl::image2d\_array       	|
+| image2d\_depth\_t       	| cl::image2d\_depth       	|
+| image2d\_array\_depth\_t 	| cl::image2d\_array\_depth 	|
+| image3d\_t             	| cl::image3d             	|
+| sampler\_t             	| cl::sampler             	|
 
 To instantiate image template class user has to specify image element type (which is
 type returned when reading from an image, and required when writing pixel to an image),
@@ -791,7 +791,7 @@ namespace cl
 Like in OpenCL C, in OpenCL C++ there only two ways of acquiring a sampler inside of a kernel.
 One is to pass it as a kernel parameter from host using `clSetKernelArg` function,
 the other is to create `cl::sampler` using `make_sampler` function in the kernel code.
-Sample can be either a program scope variable, or
+The sampler objects at non-program scope must be declared with static specifier.
 
 ```cpp
 template <addressing_mode A, normalized_coordinates C, filtering_mode F>
@@ -805,6 +805,7 @@ OpenCL C++ Specification.
 #### OpenCL C++ Specification References
 
 * [OpenCL C++ Standard Library: Images and Samplers Library](LINK_TO_OPENCLCXX_SPEC_HTML#images-and-samplers-library)
+* [OpenCL C++ Standard Library: Marker Types](LINK_TO_OPENCLCXX_SPEC_HTML#marker-types)
 
 #### Examples
 
@@ -861,6 +862,189 @@ kernel void openclc(write_only image1d_t img1d, // write_only keyword sets acces
 ```
 
 ### <a name="S-OpenCLCXXSTL-PipesLibrary"></a>Pipes Library
+
+In OpenCL C++ `pipe` keyword was replaced with `cl::pipe` class template.
+Reserve operations return `cl::pipe::reservation` object, instead of returning
+reservation id of type `reserve_id_t`.
+
+All `pipe`s-related function were moved to `cl::pipe` or `reservation` as
+their methods.
+
+#### Pipe storage
+
+OpenCL C++ introduces new pipe-related type - `cl::pipe_storage` class template.
+It enables programmers to create `cl::pipe` objects in an OpenCL program without
+need to create `cl_pipe` on host using API. `cl::pipe_storage` class template has
+two template parameters: `T` - element type, and `N` - the maximum number of packets
+which can be held by an object.
+
+##### Note
+One kernel can have only one pipe accessor (`cl::pipe` object) associated with
+one `cl::pipe_storage` object.
+
+#### Requirements and Restictions
+
+`cl::pipe::reservation`, `cl::pipe_storage` and `cl::pipe` are marker types.
+However, they also have additional sets of requirements and restictions beyond
+those specified in [Market Types](LINK_TO_OPENCLCXX_SPEC_HTML#marker-types) section.
+The most important are:
+
+* The element type `T` of `pipe` and `pipe_storage` class templates
+must be a POD type i.e. satisfy `is_pod<T>::value == true`.
+* A kernel cannot read from and write to the same pipe object.
+* Variables of type `pipe_storage` can only be declared at program scope or
+with the `static` specifier.
+* Variables of type `pipe` created from `pipe_storage` can only be declared
+inside a kernel function at kernel scope.
+* The `reservation`, `pipe_storage`, and `pipe` types cannot be used as a class or
+union field, a pointer type, an array or the return type of a function.
+* The `reservation`, `pipe_storage`, and `pipe` types cannot be used with the
+`global`, `local`, `priv` and `constant` address space storage classes.
+
+The full lists of requirements and restictions can be found in subsections
+[Requirements](LINK_TO_OPENCLCXX_SPEC_HTML#requirements) and
+[Restrictions](LINK_TO_OPENCLCXX_SPEC_HTML#restrictions-5) of Pipe Library
+section in OpenCL C++ Specification.
+
+#### OpenCL C++ Specification References
+
+* [OpenCL C++ Standard Library: Pipes Library](LINK_TO_OPENCLCXX_SPEC_HTML#pipes-library)
+  *  [Requirements](LINK_TO_OPENCLCXX_SPEC_HTML#requirements)
+  *  [Restrictions](LINK_TO_OPENCLCXX_SPEC_HTML#restrictions-5)
+* [OpenCL C++ Standard Library: Marker Types](LINK_TO_OPENCLCXX_SPEC_HTML#marker-types)
+
+#### Examples
+
+Reading from and writing to a pipe:
+
+```cpp
+// OpenCL C++
+#include <opencl_pipe>
+
+kernel void foobar(cl::pipe<int /* type */, cl::pipe_access::write /* access mode */> wp,
+                   cl::pipe<int /* access mode defaults to read */> rp)
+{
+  int val;
+  // ...
+  // write() method is enabled only for pipes with
+  // pipe_access::write access mode
+  if(wp.write(val)) { // val passed by const reference
+      // ...
+  }
+
+  // read() method is enabled only for pipes with
+  // pipe_access::read access mode
+  if(rp.read(val)) { // val passed by reference
+      // ...
+  }
+}
+```
+
+```cpp
+// OpenCL C
+kernel void foobar(write_only /* access mode */ pipe /* keyword */ int /* type */ wp,
+                   read_only  /* access mode */ pipe /* keyword */ int /* type */ rp)
+{
+  int val;
+  // ...
+  if(write_pipe(p, &val)) {
+      // ...
+  }
+
+  if(read_pipe(p, &val)) {
+      // ...
+  }
+}
+```
+
+```cpp
+// OpenCL C++
+#include <opencl_pipe>
+
+kernel void foobar(cl::pipe<int> p)
+{
+  int val;
+  // cl::pipe<int, cl::pipe_access::read>::reservation<memory_scope_work_item>
+  auto r = p.reserve(3);
+  // ...
+  // read() method is available because pipe p is in
+  // pipe_access::read access mode
+  if(r.read(2, val)) {
+    // ...
+  }
+  r.commit();
+}
+```
+
+Making and using a reservation:
+
+```cpp
+// OpenCL C
+kernel void foobar(read_only pipe int p)
+{
+  int val;
+  reserve_id_t rid = reserve_read_pipe(p, 3);
+  // ...
+  if(read_pipe(p, rid, 2, &val)) {
+      // ...
+  }
+  commit_read_pipe(p, rid);
+}
+```
+
+```cpp
+// OpenCL C++
+#include <opencl_pipe>
+
+kernel void foobar(cl::pipe<int> p)
+{
+  int val;
+  // cl::pipe<int, cl::pipe_access::read>::reservation<memory_scope_work_item>
+  auto r = p.reserve(3);
+  // ...
+  // read() method is available because pipe p is in
+  // pipe_access::read access mode
+  if(r.read(2, val)) {
+    // ...
+  }
+  r.commit();
+}
+```
+
+Using `pipe_storage`:
+
+```cpp
+// OpenCL C++
+#include <opencl_pipe>
+
+cl::pipe_storage <int, 1337> my_pipe;
+
+kernel void reader()
+{
+  auto p = my_pipe.get<cl::pipe_access::read>();
+  // ...
+  p.read(...);
+  // ...
+}
+
+kernel void writer()
+{
+  auto p = my_pipe.get<cl::pipe_access::write>();
+  // ...
+  p.write(...);
+  // ...
+}
+
+kernel void error_kernel()
+{
+  auto p1 = my_pipe.get<cl::pipe_access::write>();
+  // Error, one kernel can have only one pipe accessor
+  // (cl::pipe object) associated with one cl::pipe_storage object.
+  auto p2 = my_pipe.get<cl::pipe_access::read>();
+  // ...
+}
+```
+
 ### <a name="S-OpenCLCXXSTL-DeviceEnqueueLibrary"></a>Device Enqueue Library
 ### <a name="S-OpenCLCXXSTL-RelationalFunctions"></a>Relational Functions
 ### <a name="S-OpenCLCXXSTL-VectorDataLoadandStoreFunctions"></a>Vector Data Load and Store Functions
