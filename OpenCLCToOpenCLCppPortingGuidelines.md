@@ -1218,6 +1218,121 @@ kernel void my_func(cl::device_queue q)
 ```
 
 ### <a name="S-OpenCLCXXSTL-RelationalFunctions"></a>Relational Functions
+
+In OpenCL C++ there were significant changes in signatures and/or behaviour of
+built-in relational functions. This is because OpenCL C++ introduces
+<code>bool<i>N</i></code> type which can replace <code>int<i>N</i></code> as a type
+returned by relational functions.
+
+#### `all()` and `any()`
+
+In OpenCL C:
+```cpp
+// igentype can be char, charN, short, shortN, int, intN, long, and longN
+int any (igentype x);
+int all (igentype x);
+```
+>`any()` returns 1 if **the most significant bit** in any component of `x` is set; otherwise returns 0.
+
+>`all()` returns 1 if **the most significant bit** in all components of `x` is set; otherwise returns 0.
+
+In OpenCL C++:
+
+```cpp
+bool any(booln t);
+bool all(booln t);
+```
+>`any()` returns `true` if any component of `t` is `true`; otherwise returns `false`.
+
+>`all()` returns `true` if all components of `t` are `true`; otherwise returns `false`.
+
+#### `select()`
+
+In OpenCL C:
+```cpp
+// igentype can be char, charN, short, shortN, int, intN, long, and longN
+// ugentype can be uchar, ucharN, ushort, ushortN, uint, uintN, ulong, and ulongN
+gentype select (gentype a, gentype b, igentype c);
+gentype select (gentype a, gentype b, ugentype c);
+```
+> For each component of a vector type, `result[i] = if MSB of c[i] is set ? b[i] : a[i]`.
+
+> For scalar type, `result = c ? b : a`.
+
+> `igentype` and `ugentype` must have the same number of elements and bits as `gentype`.
+
+> NOTE: The above definition means that the behavior of select and the ternary operator for vector and scalar types is dependent on different interpretations of the bit pattern of `c`.
+
+In OpenCL C++ `select()` is less confusing:
+```cpp
+gentype select(gentype a, gentype b, booln c);
+```
+> For each component of a vector type, `result[i] = c[i] ? b[i] : a[i]`.
+
+> For a scalar type, `result = c ? b : a`.
+
+> <code>bool<i>N</i></code> must have the same number of elements as gentype.
+
+#### OpenCL C++ Specification References
+
+* [OpenCL C++ Standard Library: Relational Functions](LINK_TO_OPENCLCXX_SPEC_HTML#relational-functions)
+* [OpenCL C++ Programming Language: Expressions](LINK_TO_OPENCLCXX_SPEC_HTML#expressions)
+
+#### Examples
+
+```cpp
+// OpenCL C++
+#include <opencl_relational>
+kernel void foobar()
+{
+  bool b1 = isequal(1.0f, 1.0f); // true
+  bool b2 = isequal(1.0, 2.0); // false
+
+  bool2 b3 = isequal(float2(1.0f), float2(1.0f)); // { true, true }
+  bool2 b4 = isequal(double2(1.0), double2(2.0)); // { false, false }
+
+  bool2 b5 = { true, false };
+  auto b6 = all(b3); // false
+  auto b7 = any(b3); // true
+
+  bool2 c { true, false };
+  float2 a {  1.0f,  1.0f };
+  float2 b { -1.0f, -1.0f };
+  auto r1 = select(a, b, c); // { -1.0f, 1.0f }
+
+  auto r2 = select(1.0f, 2.0f, false); // 1.0f
+}
+```
+
+```cpp
+// OpenCL C
+kernel void foobar()
+{
+  // Note: in integer value -1 MSB is set to 1
+
+  int b1 = isequal(1.0f, 1.0f); // 1 (true)
+  long b2 = isequal(1.0, 2.0); // 0 (false)
+
+  int2 b3 = isequal((float2)(1.0f), (float2)(1.0f)); // { -1, -1 } ({ true, true })
+  long2 b4 = isequal((double2)(1.0), (double2)(2.0)); // { 0, 0 }  ({ false, false })
+
+  int b5 = all( (int2)(-1, 10) ); // 0
+  int b6 = all( (int2)(-1, -1) ); // 1
+
+  int b7 = any( (int2)(-1, 0) ); // 1
+  int b8 = any( (int2)(1, 1) ); // 0
+
+  int2 c = (int2)(-1, 1);
+  float2 a = (float2)(1.0f, 1.0f);
+  float2 b = (float2)(-1.0f, -1.0f);
+  float2 r1 = select(a, b, c); // { -1.0f, 1.0f }
+
+  float r2 = select(1.0f, 2.0f, -1); // 2.0f
+  float r3 = select(1.0f, 2.0f,  1); // 1.0f
+  float r4 = select(1.0f, 2.0f,  0); // 1.0f
+}
+```
+
 ### <a name="S-OpenCLCXXSTL-VectorDataLoadandStoreFunctions"></a>Vector Data Load and Store Functions
 ### <a name="S-OpenCLCXXSTL-AtomicOperationsLibrary"></a>Atomic Operations Library
 
