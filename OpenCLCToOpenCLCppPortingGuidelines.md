@@ -1,11 +1,10 @@
 # <a name="title"></a>OpenCL C to OpenCL C++ Porting Guidelines
 
-April 11, 2017
+April 24, 2017
 
 Editors:
 
 * [Jakub Szuppe, StreamComputing](https://streamcomputing.eu/)
-* [Your name](#)
 
 This document is a set of guidelines for developers who know OpeCL C and plan to
 port their kernels to OpenCL C++, and therefore they need to know the main
@@ -15,8 +14,6 @@ and explaining those that are the most important, and those that may cause
 hard-to-detect bugs when porting from OpenCL C to OpenCL C++.
 
 Comments and suggestions for improvements are most welcome.
-
-**[In a Nutshell](#S-InANutshell)**
 
 **[Differences](#S-Differences)**:
 
@@ -40,13 +37,10 @@ Comments and suggestions for improvements are most welcome.
   * [Vector Data Load and Store Functions](#S-OpenCLCXXSTL-VectorDataLoadandStoreFunctions)
   * [Atomic Operations Library](#S-OpenCLCXXSTL-AtomicOperationsLibrary)
 * [OpenCL C++ Compilation Process](#S-OpenCLCXXCompilation):
-  * TODO
+  * [OpenCL C++ Compilation to SPIR-V](#S-OpenCLCXXCompilationToSPIRV)
+  * [Building program created from SPIR-V](#S-OpenCLCXXCompilationBuildSPIRV)
 
 **[Bibliography](#S-Bibliography)**
-
-# <a name="S-InANutshell"></a>In a Nutshell
-
-ToDo: Add a "quick reference" table for differences between OpenCL C and OpenCL C++.
 
 # <a name="S-Differences"></a>Differences
 
@@ -1336,38 +1330,85 @@ kernel void foobar()
 ### <a name="S-OpenCLCXXSTL-VectorDataLoadandStoreFunctions"></a>Vector Data Load and Store Functions
 ### <a name="S-OpenCLCXXSTL-AtomicOperationsLibrary"></a>Atomic Operations Library
 
-### TODO
-
-* New C++ interfaces for OpenCL C special types
-  * pipe is not a keyword anymore, pipe is a class now
-  * Atomic integer and floating-point types are now classes (but seem to be compatible
-  with OpenCL C via typedefs)
-* bool and booln types are use in many function instead of int, intn, long, longn
-types
-* all, any and select functions are slightly different because of using booln type
-* New and interesting:
-  * (type traits) I think we can mention useful tools for vectors like:
-`make_vector<T, N>`, `scalar_type<T>` etc.
-  * Half Wrapper Library
-  * Vector Wrapper Library (We need good examples, use-cases)
-  * Range Library (Wee need good use-cases)
-  * Vector Utilities Library (This is very good!)
-
 ---
 ## <a name="S-OpenCLCXXCompilation"></a>OpenCL C++ Compilation Process
 
-### TODO
+OpenCL C++ kernel language can not be consumed by `clCreateProgramWithSource()` API function, which
+is used to create a program from OpenCL C source. OpenCL C++ source first have to be compiled
+to SPIR-V 2.2 binary, which can later be passed to `clCreateProgramWithIL()` to create an OpenCL program.
+After that program can be build with `clBuildProgram()`.
 
-* Now there are two compilers: front-compiler (OpenCL C++ to SPIR-V) and
-back-compiler (SPIR-V to device machine code).
-It's worth explaining it to the user (with some examples).
-* New attributes: max\_size, required\_num\_sub\_groups, ivdep
+### <a name="S-OpenCLCXXCompilationToSPIRV"></a>OpenCL C++ Compilation to SPIR-V
+
+To compile OpenCL C++ kernel language to SPIR-V user have to use compiler that is not a part
+of OpenCL framework. The Khronos Group provides reference
+[offline compiler based on Clang 3.6](https://github.com/KhronosGroup/SPIR/tree/spirv-1.1)
+and an implementation of OpenCL C++ Standard Library called [libclcxx](https://github.com/KhronosGroup/libclcxx).
+
+#### Preprocessor options
+
+Every preprocessor option that would normally be specified in `clBuildProgram()`, for OpenCL C++ must
+be passed when it is being compiled to SPIR-V.
+
+```
+-D name
+```
+
+Predefine name as a macro, with definition 1.
+
+```
+-D name=definition
+```
+
+The contents of definition are tokenized and processed as if they appeared during translation phase
+three in a `#define` directive.
+In particular, the definition will be truncated by embedded newline characters.
+
+#### Other compilation options
+
+Some feature-related options must be specified during compilation to SPIR-V:
+
+* `-cl-fp16-enable` - enables full half data type support and defines `cl_khr_fp16` macro. Disabled by default.
+* `-cl-fp64-enable` - enables full double data type support and defines `cl_khr_fp64` macro. Disabled by default.
+* `-cl-zero-init-local-mem-vars` -  enables software zero-initialization of variables allocated in local memory.
+
+### <a name="S-OpenCLCXXCompilationBuildSPIRV"></a> Building program created from SPIR-V
+When an OpenCL program created using `clCreateProgramWithIL()` is compiled (`clBuildProgram()`) not
+all build options are allowed. They have to be passed when compiling to SPIR-V. Otherwise, there is
+no difference between building program created from SPIR-V and program created from OpenCL C source.
+Which options are ignored and which not is described in [OpenCL 2.2 API Specification](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2.pdf#page=157).
+
+#### OpenCL C++ Specification and OpenCL 2.2 API References
+
+* [OpenCL C++ Specification: Compiler options](LINK_TO_OPENCLCXX_SPEC_HTML#compiler_options)
+* [OpenCL 2.2 Specification: Compiler Options](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2.pdf#page=157)
 
 
 # <a name="S-Bibliography"></a>Bibliography
 
-* [The OpenCL C++ 1.0 Specification](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.pdf)
-* [The OpenCL 2.2 API Specification](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-environment.pdf)
+### OpenCL Specifications
+
+* [The OpenCL C++ 1.0 Specification](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.pdf) ([HTML](#))
+* [The OpenCL 2.2 API Specification](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2.pdf)
+* [The OpenCL 2.2 Environment Specification](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-environment.pdf)
 * [The OpenCL C 2.0 Language Specification](https://www.khronos.org/registry/OpenCL/specs/opencl-2.0-openclc.pdf)
 * [The OpenCL 2.1 API Specification](https://www.khronos.org/registry/OpenCL/specs/opencl-2.1.pdf)
-* Other related specs and presentations
+
+### OpenCL Reference Pages
+
+* [The OpenCL 2.2 Reference Page](#)
+* [The OpenCL 2.1 Reference Page](http://www.khronos.org/registry/cl/sdk/2.1/docs/man/xhtml/)
+
+### OpenCL Headers
+
+* [OpenCL 2.2 Headers](#)
+* [OpenCL 2.1 Headers](https://github.com/KhronosGroup/OpenCL-Headers/tree/opencl21)
+
+### Other
+
+* [Khronos OpenCL Registry](https://www.khronos.org/registry/OpenCL/)
+* Michael Wong, Adam Stanski, Maria Rovatsou, Ruyman Reyes, Ben Gaster, and Bartok Sochaski. 2016.
+C++ for OpenCL Workshop, IWOCL 2016. In Proceedings of the 4th International Workshop
+on OpenCL (IWOCL '16).
+  * [Dive into OpenCL C++](http://www.iwocl.org/wp-content/uploads/iwocl-2016-dive-into-opencl-c.pdf)
+  * [OpenCL C++ kernel language](http://www.iwocl.org/wp-content/uploads/iwcol-2016-opencl-ckernel-language.pdf)
