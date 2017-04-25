@@ -715,6 +715,7 @@ kernel void foo(image2d<float4> img1, image2d<float4> img2)
 Images are another part of the OpenCL that changed a lot compared to OpenCL C.
 Instead of image types and built-in image read/write functions in OpenCL C++ there are
 image class templates with corresponding methods. Image and sampler class templates are [marker types](#S-OpenCLCXXSTL-MarkerTypes).
+Image processing kernels written in OpenCL C++ can be made more readable using .rgba vector component access (compared to .xyzw in OpenCL C).
 
 #### Image types
 
