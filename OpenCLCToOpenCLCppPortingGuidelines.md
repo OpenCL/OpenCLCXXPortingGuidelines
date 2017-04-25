@@ -113,7 +113,7 @@ float4 f = float4(1.0f, float2(2.0f, 3.0f), 4.0f);
 
 ### <a name="S-OpenCLCXX-BoolNType"></a><code>bool<i>N</i></code> Type
 
-OpenCL C++ introduces new built-in vector type: `boolN` (where `N` is 2, 4, 8, or 16). This addition change
+OpenCL C++ introduces new built-in vector type: `boolN` (where `N` is 2, 3, 4, 8, or 16). This addition change
 resolves problem with using the relational (`<`, `>`, `<=`, `>=`, `==`, `!=`) and the logical operators (`!`, `&&`, `||`) with built-in vector types.
 
 In OpenCL C for built-in vector types the relational and the logica operators return a vector signed
@@ -171,11 +171,11 @@ bool2 b = long2(1, 1) > long2(0, 0); // { true, true }
 
 // In OpenCL C: int2 b = isnan((float2)(0.0f)),
 // and b is { 0, 0 }
-bool b = isnan(float2(0.0f)) // { false, false }
+bool2 b = isnan(float2(0.0f)) // { false, false }
 
 // In OpenCL C: long2 b = isfinite((double2)(0.0))
 // and b is { -1, -1 }
-bool b = isfinite(double2(0.0)) // { true, true }
+bool2 b = isfinite(double2(0.0)) // { true, true }
 ```
 
 #### OpenCL C++ Specification References
@@ -198,7 +198,7 @@ and address space storage classes.
 > Go to [Address Spaces Library](#S-OpenCLCXXSTL-AddressSpacesLibrary) section of
 The Porting Guidelines to read more about address space pointers and address space storage classes.
 
-It is still possible for OpenCL C++ compile to deduce an address space based on the scope where
+It is still possible for OpenCL C++ compiler to deduce an address space based on the scope where
 an object is declared:
 
 * If a variable is declared in program scope, with `static` or `extern` specifier and the standard
@@ -664,15 +664,15 @@ All marker types can be passed to functions only by a reference.
 #include <opencl_work_item>
 using namespace cl;
 
-float4 bar_val(image1d<float4> img) {
+float4 bar_val(image2d<float4> img) {
     return img.read({get_global_id(0), get_global_id(1)});
 }
 
-float4 bar_ref(image1d<float4>& img) {
+float4 bar_ref(image2d<float4>& img) {
     return img.read({get_global_id(0), get_global_id(1)});
 }
 
-kernel void foo(image1d<float4> img)
+kernel void foo(image2d<float4> img)
 {
     // Error: marker type cannot be passed by value
     float4 val = bar_val(img);
@@ -687,20 +687,20 @@ kernel void foo(image1d<float4> img)
 #include <opencl_work_item>
 using namespace cl;
 
-float4 bar(image1d<float4> img) {
+float4 bar(image2d<float4> img) {
     return img.read({get_global_id(0), get_global_id(1)});
 }
 
-kernel void foo(image1d<float4> img1, image1d<float4> img2)
+kernel void foo(image2d<float4> img1, image2d<float4> img2)
 {
     // Error: marker type cannot be declared in the kernel
-    image1d<float4> img3;
+    image2d<float4> img3;
 
     // Error: marker type cannot be assigned
     img1 = img2;
 
     // Error: taking address of marker type
-    image1d<float4> *imgPtr = &img1;
+    image2d<float4> *imgPtr = &img1;
 
     // Undefined behavior: size of marker type is not defined
     size_t s = sizeof(img1);
@@ -816,8 +816,8 @@ using my_image2d_type = image2d<float4>; // access mode is image_access::read
 
 kernel void openclcxx(my_image1d_type img1d, my_image2d_type img2d)
 {
-    const int  1d_coords(get_global_id(0));
-    const int2 2d_coords(get_global_id(0), get_global_id(1));
+    const int  coords1d(get_global_id(0));
+    const int2 coords2d(get_global_id(0), get_global_id(1));
 
     float4 val1d(0.0f);
     // 1) write() is enabled because the access mode of my_image1d_type
@@ -826,7 +826,7 @@ kernel void openclcxx(my_image1d_type img1d, my_image2d_type img2d)
     //    is a 1d image type
     // 3) write() takes float4 value as pixel value because float4 is the image
     //    element type of my_image1d_type
-    img1d.write(1d_coords, val1d);
+    img1d.write(coords1d, val1d);
 
     // 1) read() is enabled because the access mode of my_image2d_type
     //    is image_access::read
@@ -834,7 +834,7 @@ kernel void openclcxx(my_image1d_type img1d, my_image2d_type img2d)
     //    is a 2d image type
     // 3) read() returns float4 because float4 is the image element type
     //    of my_image2d_type
-    float4 val2d = img2d.read(coords);
+    float4 val2d = img2d.read(coords2d);
 }
 ```
 
@@ -843,15 +843,15 @@ kernel void openclcxx(my_image1d_type img1d, my_image2d_type img2d)
 kernel void openclc(write_only image1d_t img1d, // write_only keyword sets access mode
                     read_only  image2d_t img2d) // read_only keyword sets access mode
 {
-    const int  1d_coords = get_global_id(0);
-    const int2 2d_coords = (int2)(get_global_id(0), get_global_id(1));
+    const int  coords1d = get_global_id(0);
+    const int2 coords2d = (int2)(get_global_id(0), get_global_id(1));
 
     float4 val1d = (float4)(0.0f);
-    write_imagef(img, 1d_coords, val1d);
+    write_imagef(img1d, coords1d, val1d);
 
     // float4 read_imagef(image2d_t, int2) function is used to
     // read from img 2d image.
-    float4 val2d = read_imagef(img, coords);
+    float4 val2d = read_imagef(img2d, coords2d);
 }
 ```
 
@@ -941,11 +941,15 @@ kernel void foobar(write_only /* access mode */ pipe /* keyword */ int /* type *
 {
   int val;
   // ...
-  if(write_pipe(p, &val)) {
+
+  // In OpenCL write_pipe(...) and read_pipe(...) operations
+  // returns 0 when write/read is successful, and a negative
+  // value otherwise
+  if(write_pipe(p, &val) == 0) {
       // ...
   }
 
-  if(read_pipe(p, &val)) {
+  if(read_pipe(p, &val) == 0) {
       // ...
   }
 }
@@ -1335,7 +1339,7 @@ kernel void foobar()
 
 OpenCL C++ kernel language can not be consumed by `clCreateProgramWithSource()` API function, which
 is used to create a program from OpenCL C source. OpenCL C++ source first have to be compiled
-to SPIR-V 2.2 binary, which can later be passed to `clCreateProgramWithIL()` to create an OpenCL program.
+to SPIR-V 1.2 binary, which can later be passed to `clCreateProgramWithIL()` to create an OpenCL program.
 After that program can be build with `clBuildProgram()`.
 
 ### <a name="S-OpenCLCXXCompilationToSPIRV"></a>OpenCL C++ Compilation to SPIR-V
