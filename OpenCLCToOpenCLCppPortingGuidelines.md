@@ -715,7 +715,6 @@ kernel void foo(image2d<float4> img1, image2d<float4> img2)
 Images are another part of the OpenCL that changed a lot compared to OpenCL C.
 Instead of image types and built-in image read/write functions in OpenCL C++ there are
 image class templates with corresponding methods. Image and sampler class templates are [marker types](#S-OpenCLCXXSTL-MarkerTypes).
-Image processing kernels written in OpenCL C++ can be made more readable using .rgba vector component access (compared to .xyzw in OpenCL C).
 
 #### Image types
 
@@ -750,17 +749,39 @@ image element type template parameter. Image type with invalid pixel type is ill
 See subsection [Image element types](LINK_TO_OPENCLCXX_SPEC_HTML#image-element-types)
 of OpenCL C++ Specification for more details.
 
+Image processing kernels written in OpenCL C++ can be made more readable using `.rgba` vector
+component access (compared to `.xyzw` in OpenCL C).
+Like `xyzw` selector, `rgba` selector works only for vector types with 4 or less elements.
+See also Vector Component Access part of subsection
+[Built-in Vector Data Types](LINK_TO_OPENCLCXX_SPEC_HTML#builtin-vector-data-types)
+and section [Vector Utilities Library](LINK_TO_OPENCLCXX_SPEC_HTML#vector-utilities-library)
+of OpenCL C++ Specification.
+
 ```cpp
 // OpenCL C++
-kernel void openclcxx(image2d<float4, // image element type
+kernel void openclcxx(image2d<uint4, // image element type
                               image_access::read // access mode
                              > img)
-{ /* ... */ }
+{
+  uint4 color;
+  // rgba selector
+  color.r = 255;
+  color.gb = uint2(0);
+  color.a = 255;
+  //...
+}
 
 // OpenCL C
 kernel void openclc(read_only image2d_t img) // read_only keyword sets access mode
                                              // image element type not defined
-{ /* ... */ }
+{
+  uint4 color;
+  // xyzw selector
+  color.x = 255;
+  color.yz = (uint2)(0);
+  color.w = 255;
+  //...
+}
 ```
 
 #### Image access mode
