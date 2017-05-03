@@ -1,19 +1,19 @@
 # <a name="title"></a>OpenCL C to OpenCL C++ Porting Guidelines
 
-April 24, 2017
+May 16, 2017
 
 Editors:
 
 * [Jakub Szuppe, StreamComputing](https://streamcomputing.eu/)
 
-This document is a set of guidelines for developers who know OpeCL C and plan to
+This document is a set of guidelines for developers who know OpenCL C and plan to
 port their kernels to OpenCL C++, and therefore they need to know the main
 differences between those two kernel languages.
 The focus is not on highlighting all the differences, but rather on exposing
 and explaining those that are the most important, and those that may cause
 hard-to-detect bugs when porting from OpenCL C to OpenCL C++.
 
-Comments and suggestions for improvements are most welcome.
+Comments, suggestions for improvements, and contributions are most welcome.
 
 **[Differences](#S-Differences)**:
 
