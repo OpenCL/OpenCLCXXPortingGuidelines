@@ -1354,6 +1354,124 @@ kernel void foobar()
 ```
 
 ### <a name="S-OpenCLCXXSTL-VectorDataLoadandStoreFunctions"></a>Vector Data Load and Store Functions
+
+In OpenCL C++ vector data load and store functions were greatly simplified compared to OpenCL: instead of
+39 different functions, now there are just 9 function templates. The requirements and the behaviours of
+functions have not be changed. Also arguments and their order was not changed.
+
+| OpenCL C              	| OpenCL C++              	|
+|-----------------------	|-------------------------	|
+| <code>gentype<i>N</i> vload<i>N</i></code> | `template <size_t N, class T> make_vector_t<T, N> vload` |
+| <code>void vstore<i>N</i>(...)</code> | `template <class T> void vstore(…, vector_element_t<T>* p)` |
+| <code>float<i>N</i> vload_half\[<i>N</i>\]</code> | `template <size_t N> make_vector_t<float, N> vload_half` |
+| <code>void vstore_half[<i>N</i>]\[<i>\_rounding\_mode</i>\]</code> | `template <rounding_mode R, class Type> void vstore_half(…, half* p)` |
+| <code>float<i>N</i> vloada_half<i>N</i></code> | `template <size_t N> make_vector_t<float, N> vloada_half` |
+| <code>void vstore_half<i>N</i>\[<i>\_rounding\_mode</i>\]</code> | `template <rounding_mode R, class T> void vstorea_half(…, half* p)` |
+
+Read [Header <opencl_vector_load_store> Synopsis](LINK_TO_OPENCLCXX_SPEC_HTML#header-opencl_vector_load_store)
+subsection of [Vector Data Load and Store Functions](LINK_TO_OPENCLCXX_SPEC_HTML#vector-data-load-and-store-functions)
+section to see vector data load and store function templates declarations.
+
+#### OpenCL C++ Specification References
+
+* [OpenCL C++ Standard Library: Vector Data Load and Store Functions](LINK_TO_OPENCLCXX_SPEC_HTML#vector-data-load-and-store-functions)
+
+#### Examples
+
+`vload` and `vstore`:
+
+```cpp
+// OpenCL C++
+#include <opencl_vector_load_store>
+using namespace cl;
+
+kernel void foobar(float * fptr, const constant_ptr<half> hptr)
+{
+  auto f4 = vload<4>(0, fptr); // reads from (fptr + (0 * 4)), float4 returned
+  auto f2 = vload<2>(2, fptr); // reads from (fptr + (2 * 2)), float2 returned
+
+#ifdef cl_khr_fp16 // cl_khr_fp16 must be defined and suppported
+  auto h8 = vload<8>(0, hptr); // reads from (hptr + (0 * 8)), half8 returned
+#endif
+
+  vstore(float4{ 1, 2, 3, 4}, 0, fptr); // float4 stored at (fptr + (0 * 4))
+  vstore(f2, 2, fptr); // float2 stored at (fptr + (2 * 2))
+}
+```
+
+```cpp
+// OpenCL C
+kernel void foobar(float * fptr, const constant half * hptr)
+{
+  float4 f4 = vload4(0, fptr); // reads from (fptr + (0 * 4)), float4 returned
+  float2 f2 = vload2(2, fptr); // reads from (fptr + (2 * 2)), float2 returned
+
+#ifdef cl_khr_fp16 // cl_khr_fp16 must be defined and suppported
+  half8 h8 = vload8(0, hptr); // reads from (hptr + (0 * 8)), half8 returned
+#endif
+
+  vstore4(f4, 0, fptr); // float4 stored at (fptr + (0 * 4))
+  vstore2(f2, 2, fptr); // float2 stored at (fptr + (2 * 2))
+}
+```
+
+`vload_half`, `vstore_half`, `vloada_half`, and `vstorea_half`:
+
+```cpp
+// OpenCL C++
+#include <opencl_vector_load_store>
+using namespace cl;
+
+kernel void foobar_half(half * hptr)
+{
+  // half vload
+  auto f4 = vload_half<4>(0, hptr); // reads from (hptr + (0 * 4)), float4 returned
+  auto f3 = vload_half<3>(0, hptr); // reads from (hptr + (0 * 3)), float3 returned
+
+  // half array vload
+  auto f4a = vloada_half<4>(0, hptr); // reads from (hptr + (0 * 4)), float4 returned
+  auto f3a = vloada_half<3>(0, hptr); // reads from (hptr + (0 * 4)), float3 returned
+
+  // half vstore
+  vstore_half(f3, 0, hptr); // float3 stored at (hptr + (0 * 3)),
+                            // rounded to nearest even (rounding_mode::rte)
+  vstore_half<rounding_mode::rtz>(f4, 0, hptr); // float4 stored at (hptr + (0 * 4)),
+                                                // rounded toward zero
+  // half array vstore
+  vstorea_half(f3a, 0, hptr); // float3 stored at (hptr + (0 * 4))
+                              // rounded to nearest even (rounding_mode::rte)
+  vstorea_half<rounding_mode::rtz>(f4a, 0, hptr); // float4 stored at (hptr + (0 * 4))
+                                                  // rounded toward zero
+}
+```
+
+```cpp
+// OpenCL C
+kernel void foobar_half(half * hptr)
+{
+  // half vload
+  float4 f4 = vload_half4(0, hptr); // reads from (hptr + (0 * 4)), float4 returned
+  float3 f3 = vload_half3(0, hptr); // reads from (hptr + (0 * 3)), float3 returned
+
+  // half array vload
+  float4 f4a = vloada_half4(0, hptr); // reads from (hptr + (0 * 4)), float4 returned
+  float3 f3a = vloada_half3(0, hptr); // reads from (hptr + (0 * 4)), float3 returned
+
+  // half vstore
+  vstore_half3(f3, 0, hptr); // float3 stored at (hptr + (0 * 3)),
+                             // rounded to nearest even
+  vstore_half4_rtz(f4, 0, hptr); // float4 stored at (hptr + (0 * 4)),
+                                 // rounded toward zero
+
+  // half array vstore
+  vstorea_half3(f3a, 0, hptr); // float3 stored at (hptr + (0 * 4))
+                               // rounded to nearest even
+  vstorea_half4_rtz(f4a, 0, hptr); // float4 stored at (hptr + (0 * 4))
+                                   // rounded toward zero
+}
+
+```
+
 ### <a name="S-OpenCLCXXSTL-AtomicOperationsLibrary"></a>Atomic Operations Library
 
 ---
