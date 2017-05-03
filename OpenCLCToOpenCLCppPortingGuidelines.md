@@ -1474,6 +1474,92 @@ kernel void foobar_half(half * hptr)
 
 ### <a name="S-OpenCLCXXSTL-AtomicOperationsLibrary"></a>Atomic Operations Library
 
+OpenCL C atomic operation are based on C11 atomics. In OpenCL C++ atomics are based on
+C++14 atomics and synchronization operations.
+Section [Atomic Operations Library](LINK_TO_OPENCLCXX_SPEC_HTML#atomic-operations-library) of OpenCL C++
+presents synopsis of the atomics library and differences from C++14 specification.
+
+Because atomic functions in OpenCL C and OpenCL C++ have virtually the same argument lists adding
+`using namespace cl;` can Significantly speed up porting kernels to OpenCL C++.
+
+#### Atomic types
+
+In OpenCL C++ different OpenCL C atomic types like `atomic_int`, `atomic_float` were replaced with one class
+template `atomic<T>`, however, for supported types proper type alias are declared
+(for example: `using atomic_int = atomic<int>;`).
+
+* There are explicit specializations for integral types. Each of these specializations provides set of extra
+operators suitable for integral types.
+* There is an explicit specialization of the atomic template for pointer types.
+* 64-bit atomic types require `cl_khr_int64_base_atomics` and `cl_khr_int64_extended_atomics` extensions
+and `atomic<double>` in addition requires `cl_khr_fp64`.
+
+#### Restrictions
+
+* The generic `atomic<T>` class template is only available if `T` is `int`, `uint`, `long`,
+ `ulong`, `float`, `double`, `intptr_t`, `uintptr_t`, `size_t`, `ptrdiff_t`.
+* The atomic data types cannot be declared inside a kernel or non-kernel function unless they are declared as `static` keyword or in `local<T>` and `global<T>` containers. See examples.
+* The atomic operations on the private memory can result in undefined behavior.
+* `memory_order_consume` from C++14 is not supported by OpenCL C++.
+
+Full list of restrictions can be found in subsection
+[Restrictions](LINK_TO_OPENCLCXX_SPEC_HTML#restrictions-3) of section
+[Atomic Operations Library](LINK_TO_OPENCLCXX_SPEC_HTML#atomic-operations-library)
+in OpenCL C++ specification.
+
+#### OpenCL C++ Specification References
+
+* [OpenCL C++ Standard Library: Atomic Operations Library](LINK_TO_OPENCLCXX_SPEC_HTML#atomic-operations-librarys)
+
+#### Examples
+
+```cpp
+// OpenCL C++
+#include <opencl_memory>
+#include <opencl_atomic>
+using namespace cl;
+
+atomic_int a; // OK: program scope atomic in the global memory
+              // atomic_int is alias for atomic<int>
+local<atomic<int>> b(1); // OK: program scope atomic in the local memory
+                         // Initialized to 1. The initialization is not atomic.
+global<atomic<int>> c = ATOMIC_VAR_INIT(2); // OK: program scope atomic in the global memory
+                                            // Initialized to 2. The initialization is not atomic.
+
+kernel void foo()
+{
+    static global<atomic<int>> d; // OK: atomic in the global memory
+    static atomic<int> e; // OK: atomic in the global memory
+    local<atomic<int>> f; // OK: atomic in the local memory
+
+    atomic<global<int>> g; // Error: class members cannot be
+                           //        in address space
+
+    atomic<int> h; // undefined behavior
+
+    atomic_init(&a, 123); // Initialize a to 123. The initialization is not atomic.
+}
+```
+
+```cpp
+// OpenCL C+
+global atomic_int a; // OK: program scope atomic in the global memory
+local  atomic_int b; // Error: program scope local variables not suppoerted in OpenCL C
+global atomic_int c = ATOMIC_VAR_INIT(2); // OK: program scope atomic in the global memory
+                                          // Initialized to 2. The initialization is not atomic.
+
+kernel void foo()
+{
+    static global atomic_int d; // OK: atomic in the global memory
+    static atomic_int e; // OK: atomic in the global memory
+    local atomic_int f; // OK: atomic in the local memory
+
+    atomic_int h; // undefined behavior
+
+    atomic_init(&a, 123); // Initialize a to 123. The initialization is not atomic.
+}
+```
+
 ---
 ## <a name="S-OpenCLCXXCompilation"></a>OpenCL C++ Compilation Process
 
