@@ -1491,6 +1491,7 @@ template `atomic<T>`, however, for supported types proper type alias are declare
 * There are explicit specializations for integral types. Each of these specializations provides set of extra
 operators suitable for integral types.
 * There is an explicit specialization of the atomic template for pointer types.
+* All atomic classes have deleted copy constructor and deleted copy assignment operators.
 * 64-bit atomic types require `cl_khr_int64_base_atomics` and `cl_khr_int64_extended_atomics` extensions
 and `atomic<double>` in addition requires `cl_khr_fp64`.
 
