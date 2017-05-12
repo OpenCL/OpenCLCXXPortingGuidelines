@@ -4,7 +4,7 @@ May 16, 2017
 
 Editors:
 
-* [Jakub Szuppe, StreamComputing](https://streamcomputing.eu/)
+* [Jakub Szuppe, Stream HPC](https://streamhpc.com)
 
 This document is a set of guidelines for developers who know OpenCL C and plan to
 port their kernels to OpenCL C++, and therefore they need to know the main
