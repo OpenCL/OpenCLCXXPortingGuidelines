@@ -1670,3 +1670,8 @@ C++ for OpenCL Workshop, IWOCL 2016. In Proceedings of the 4th International Wor
 on OpenCL (IWOCL '16).
   * [Dive into OpenCL C++](http://www.iwocl.org/wp-content/uploads/iwocl-2016-dive-into-opencl-c.pdf)
   * [OpenCL C++ kernel language](http://www.iwocl.org/wp-content/uploads/iwcol-2016-opencl-ckernel-language.pdf)
+
+***
+
+OpenCL and the OpenCL logo are trademarks of Apple Inc. used by permission by Khronos.
+Other names are for informational purposes only and may be trademarks of their respective owners.

@@ -30,3 +30,8 @@ introduced in OpenCL 2.2 and OpenCL C++.
 
 Comments, suggestions for improvements, and contributions are most welcome.
 More details are found at [CONTRIBUTING](./CONTRIBUTING.md) and [LICENSE](./LICENSE.txt).
+
+## Trademarks
+
+OpenCL and the OpenCL logo are trademarks of Apple Inc. used by permission by Khronos.
+Other names are for informational purposes only and may be trademarks of their respective owners.
