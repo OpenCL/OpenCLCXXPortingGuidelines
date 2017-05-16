@@ -114,7 +114,8 @@ float4 f = float4(1.0f, float2(2.0f, 3.0f), 4.0f);
 ### <a name="S-OpenCLCXX-BoolNType"></a><code>bool<i>N</i></code> Type
 
 OpenCL C++ introduces new built-in vector type: `boolN` (where `N` is 2, 3, 4, 8, or 16). This addition change
-resolves problem with using the relational (`<`, `>`, `<=`, `>=`, `==`, `!=`) and the logical operators (`!`, `&&`, `||`) with built-in vector types.
+resolves problem with using the relational (`<`, `>`, `<=`, `>=`, `==`, `!=`) and the logical operators
+(`!`, `&&`, `||`) with built-in vector types.
 
 In OpenCL C for built-in vector types the relational and the logica operators return a vector signed
 integer type of the same size as the source operands. In OpenCL C++ it was simpliefied and
@@ -180,11 +181,12 @@ bool2 b = isfinite(double2(0.0)) // { true, true }
 
 #### OpenCL C++ Specification References
 
-* [OpenCL C++ Programming Language: Expressions](LINK_TO_OPENCLCXX_SPEC_HTML#expressions)
+* [OpenCL C++ Programming Language: Expressions](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#expressions)
 
 ### <a name="S-OpenCLCXX-EndOfExplicitNamedAddressSpaces"></a>End Of Explicit Named Address Spaces
 
-[OpenCL C++ 1.0 Specification in Address Spaces section](LINK_TO_OPENCLCXX_SPEC_HTML#address-spaces) says:
+[OpenCL C++ 1.0 Specification in Address Spaces section](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#address-spaces)
+says:
 >The OpenCL C++ kernel language doesn’t introduce any explicit named address spaces, but they are
 implemented as part of the standard library described in Address Spaces Library section.
 There are 4 types of memory supported by all OpenCL devices: global, local, private and constant.
@@ -202,19 +204,17 @@ It is still possible for OpenCL C++ compiler to deduce an address space based on
 an object is declared:
 
 * If a variable is declared in program scope, with `static` or `extern` specifier and the standard
-library storage class
-(see[Explicit address space storage classes](LINK_TO_OPENCLCXX_SPEC_HTML#explicit-address-space-storage-classes)
-section)
-is not used, the variable is allocated in the global memory of a device.
+library storage class (see
+[Explicit address space storage classes](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#explicit-address-space-storage-classes)
+section) is not used, the variable is allocated in the global memory of a device.
 * If a variable is declared in function scope, without static specifier and the standard library storage class
-(see [Explicit address space storage classes](LINK_TO_OPENCLCXX_SPEC_HTML#explicit-address-space-storage-classes)
-section)
-is not used, the variable is allocated in the private memory of a device.
+(see [Explicit address space storage classes](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#explicit-address-space-storage-classes)
+section) is not used, the variable is allocated in the private memory of a device.
 
 #### OpenCL C++ Specification References
 
-* [OpenCL C++ Programming Language: Address Spaces](LINK_TO_OPENCLCXX_SPEC_HTML#address-spaces)
-* [OpenCL C++ Standard Library: Address Spaces Library](LINK_TO_OPENCLCXX_SPEC_HTML#address-spaces-library)
+* [OpenCL C++ Programming Language: Address Spaces](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#address-spaces)
+* [OpenCL C++ Standard Library: Address Spaces Library](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#address-spaces-library)
 
 #### Examples, bad (OpenCL C-style)
 
@@ -274,10 +274,10 @@ kernel void example_kernel(cl::constant_ptr<int[]> input)
 
 ##### Note
 > More examples on address spaces can be found in subsections
-[3.4.5. Restrictions](LINK_TO_OPENCLCXX_SPEC_HTML#restrictions-2) and
-[3.4.6. Examples](LINK_TO_OPENCLCXX_SPEC_HTML#examples-3) of section
-[Address Spaces Library](LINK_TO_OPENCLCXX_SPEC_HTML#address-spaces-library) in
-[OpenCL C++ specification](LINK_TO_OPENCLCXX_SPEC_HTML).
+[3.4.5. Restrictions](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#restrictions-2) and
+[3.4.6. Examples](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#examples-3) of section
+[Address Spaces Library](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#address-spaces-library) in
+[OpenCL C++ specification](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html).
 
 ### <a name="S-OpenCLCXX-KernelRestrictions"></a>Kernel Function Restrictions
 
@@ -297,7 +297,7 @@ kernel function to make it resemble kernel function known from OpenCL C:
 
 #### OpenCL C++ Specification References
 
-* [OpenCL C++ Programming Language: Kernel Functions](LINK_TO_OPENCLCXX_SPEC_HTML#kernel-functions)
+* [OpenCL C++ Programming Language: Kernel Functions](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#kernel-functions)
 
 #### Examples, bad
 
@@ -357,16 +357,17 @@ the kernel parameters must meet the following requirements:
 contain bool scalar or vector type fields.
 * Types cannot be structures and classes with bit field members.
 * Marker types must be passed by value
-([Marker Types section](LINK_TO_OPENCLCXX_SPEC_HTML#marker-types)).
+([Marker Types section](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#marker-types)).
 * `global`, `constant`, `local` storage classes can be passed only by reference or pointer.
-More details in [Explicit address space storage classes](LINK_TO_OPENCLCXX_SPEC_HTML#explicit-address-space-storage-classes)
+More details in
+[Explicit address space storage classes](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#explicit-address-space-storage-classes)
 section.
 * Pointers and references must point to one of the following address spaces: global, local
 or constant.
 
 #### OpenCL C++ Specification References
 
-* [OpenCL C++ Programming Language: Kernel Functions](LINK_TO_OPENCLCXX_SPEC_HTML#kernel-functions)
+* [OpenCL C++ Programming Language: Kernel Functions](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#kernel-functions)
 
 ### <a name="S-OpenCLCXX-GeneralRestrictions"></a>General Restrictions
 
@@ -395,7 +396,7 @@ features are supported in OpenCL C++:
 
 #### OpenCL C++ Specification References
 
-* [OpenCL C++ Programming Language: Restrictions](LINK_TO_OPENCLCXX_SPEC_HTML#opencl_cxx_restrictions)
+* [OpenCL C++ Programming Language: Restrictions](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#opencl_cxx_restrictions)
 
 ---
 ## <a name="S-OpenCLCXXSTL"></a>OpenCL C++ Standard Library
@@ -414,7 +415,7 @@ namespace `cl::`.
 
 #### OpenCL C++ Specification References
 
-* [OpenCL C++ Standard Library](LINK_TO_OPENCLCXX_SPEC_HTML#opencl-c-standard-library)
+* [OpenCL C++ Standard Library](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#opencl-c-standard-library)
 
 #### Solution
 
@@ -482,7 +483,7 @@ rounding mode and conversions to floating-point type uses the `rte` rounding mod
 
 #### OpenCL C++ Specification References
 
-* [OpenCL C++ Standard Library: Conversions Library](LINK_TO_OPENCLCXX_SPEC_HTML#conversions-library)
+* [OpenCL C++ Standard Library: Conversions Library](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#conversions-library)
 
 #### Examples
 
@@ -512,19 +513,21 @@ kernel void covert_foo_bar()
 
 ### <a name="S-OpenCLCXXSTL-ReinterpretingDataLibrary"></a>Reinterpreting Data Library
 
-OpenCL C <code>as&#95;<i>type</i>()</code> and <code>as&#95;<i>typeN</i>()</code> operators used for reinterpreting bits in a data type as
-another data type in OpenCL were replaced in OpenCL C++ with `TargetType as_type(InputType const&)` function template.
+OpenCL C <code>as&#95;<i>type</i>()</code> and <code>as&#95;<i>typeN</i>()</code> operators used for
+reinterpreting bits in a data type as another data type in OpenCL were replaced in OpenCL C++
+with `TargetType as_type(InputType const&)` function template.
 
 ##### Note
 > All data types described in
-[Device built-in scalar data types](LINK_TO_OPENCLCXX_SPEC_HTML#device_builtin_scalar_data_types)
-and [Device built-in vector data types](LINK_TO_OPENCLCXX_SPEC_HTML#device_builtin_vector_data_types)
+[Device built-in scalar data types](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#device_builtin_scalar_data_types)
+and
+[Device built-in vector data types](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#device_builtin_vector_data_types)
 tables (except `bool` and `void`) may be also reinterpreted as another data type of the same size
 using the `as_type()` function template for scalar and vector data types.
 
 #### OpenCL C++ Specification References
 
-* [OpenCL C++ Standard Library: Reinterpreting Data Library](LINK_TO_OPENCLCXX_SPEC_HTML#reinterpreting-data-library)
+* [OpenCL C++ Standard Library: Reinterpreting Data Library](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#reinterpreting-data-library)
 
 #### Examples
 
@@ -560,8 +563,9 @@ kernel void reinterpret_bar_foo()
 
 ### <a name="S-OpenCLCXXSTL-AddressSpacesLibrary"></a>Address Spaces Library
 
-As mentioned in [End of explicit named address spaces](#S-OpenCLCXX-EndOfExplicitNamedAddressSpaces), in OpenCL
-C++ explicit named address spaces known from OpenCL C were replaced by explicit address space storage and pointer classes.
+As mentioned in [End of explicit named address spaces](#S-OpenCLCXX-EndOfExplicitNamedAddressSpaces),
+in OpenCL C++ explicit named address spaces known from OpenCL C were replaced by explicit address space
+storage and pointer classes.
 
 **Explicit address space storage classes:**
 
@@ -584,19 +588,25 @@ C++ explicit named address spaces known from OpenCL C were replaced by explicit 
 * `cl::private_ptr<T>`
 * `cl::constant_ptr<T>`
 
-The explicit address space pointer classes are just like pointers: they can be converted to and from pointers with compatible address spaces, qualifiers and types. Assignment or casting between explicit pointer types of incompatible address spaces is illegal.
+The explicit address space pointer classes are just like pointers: they can be converted to and from pointers
+with compatible address spaces, qualifiers and types. Assignment or casting between explicit pointer types of
+incompatible address spaces is illegal.
 
-All named address spaces are incompatible with all other address spaces, but local, global and private pointers can be converted to standard C++ pointers.
+All named address spaces are incompatible with all other address spaces, but local, global and private pointers
+can be converted to standard C++ pointers.
 
 #### Restrictions
 
-[The OpenCL C++ specification](LINK_TO_OPENCLCXX_SPEC_HTML) specification in subsections [3.4.5. Restrictions](LINK_TO_OPENCLCXX_SPEC_HTML#restrictions-2) of section [Address Spaces Library](LINK_TO_OPENCLCXX_SPEC_HTML#address-spaces-library) contains detailed list of restrictions with examples regarding explicit address space storage and pointer classes.
+[The OpenCL C++ specification](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html)
+specification in subsections [3.4.5. Restrictions](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#restrictions-2)
+of section [Address Spaces Library](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#address-spaces-library)
+contains detailed list of restrictions with examples regarding explicit address space storage and pointer classes.
 It is very important to read and understand those restrictions.
 
 #### OpenCL C++ Specification References
 
-* [OpenCL C++ Programming Language: Address Spaces](LINK_TO_OPENCLCXX_SPEC_HTML#address-spaces)
-* [OpenCL C++ Standard Library: Address Spaces Library](LINK_TO_OPENCLCXX_SPEC_HTML#address-spaces-library)
+* [OpenCL C++ Programming Language: Address Spaces](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#address-spaces)
+* [OpenCL C++ Standard Library: Address Spaces Library](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#address-spaces-library)
 
 #### Examples
 
@@ -634,10 +644,10 @@ kernel void example_kernel(cl::global<int> * input)
 
 ##### Note
 > More examples on address spaces can be found in subsections
-[3.4.5. Restrictions](LINK_TO_OPENCLCXX_SPEC_HTML#restrictions-2) and
-[3.4.6. Examples](LINK_TO_OPENCLCXX_SPEC_HTML#examples-3) of section
-[Address Spaces Library](LINK_TO_OPENCLCXX_SPEC_HTML#address-spaces-library) in
-[OpenCL C++ specification](LINK_TO_OPENCLCXX_SPEC_HTML).
+[3.4.5. Restrictions](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#restrictions-2) and
+[3.4.6. Examples](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#examples-3) of section
+[Address Spaces Library](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#address-spaces-library) in
+[OpenCL C++ specification](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html).
 
 ### <a name="S-OpenCLCXXSTL-MarkerTypes"></a>Marker Types
 
@@ -655,7 +665,7 @@ All marker types can be passed to functions only by a reference.
 
 #### OpenCL C++ Specification References
 
-* [OpenCL C++ Standard Library: Marker Types](LINK_TO_OPENCLCXX_SPEC_HTML#marker-types)
+* [OpenCL C++ Standard Library: Marker Types](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#marker-types)
 
 #### Examples
 
@@ -739,22 +749,25 @@ and access mode (`cl::image_access::read` is the default access mode).
 Based on the dimension of an image different methods are available. All image types have
 `int width()` method, images of dimension 2 or 3 have `int height()`, 3D images have
 `int depth()`, and arrayed images have one additional method - `int array_size()`.
-See subsection [Image dimension](LINK_TO_OPENCLCXX_SPEC_HTML#image-dimension)
+See subsection
+[Image dimension](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#image-dimension)
 of OpenCL C++ Specification for more details.
 
 #### Image element type
 
 Depending on the type of an image different types are allowed to be specified as
 image element type template parameter. Image type with invalid pixel type is ill formed.
-See subsection [Image element types](LINK_TO_OPENCLCXX_SPEC_HTML#image-element-types)
+See subsection
+[Image element types](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#image-element-types)
 of OpenCL C++ Specification for more details.
 
 Image processing kernels written in OpenCL C++ can be made more readable using `.rgba` vector
 component access (compared to `.xyzw` in OpenCL C).
 Like `xyzw` selector, `rgba` selector works only for vector types with 4 or less elements.
 See also Vector Component Access part of subsection
-[Built-in Vector Data Types](LINK_TO_OPENCLCXX_SPEC_HTML#builtin-vector-data-types)
-and section [Vector Utilities Library](LINK_TO_OPENCLCXX_SPEC_HTML#vector-utilities-library)
+[Built-in Vector Data Types](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#builtin-vector-data-types)
+and section
+[Vector Utilities Library](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#vector-utilities-library)
 of OpenCL C++ Specification.
 
 ```cpp
@@ -787,7 +800,9 @@ kernel void openclc(read_only image2d_t img) // read_only keyword sets access mo
 #### Image access mode
 
 Based on the image access mode different read and write methods are present in
-the instantiate image class. See subsection [Image access](LINK_TO_OPENCLCXX_SPEC_HTML#image-access) of OpenCL C++ Specification for more details.
+the instantiate image class. See subsection
+[Image access](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#image-access)
+of OpenCL C++ Specification for more details.
 
 ```cpp
 namespace cl
@@ -815,13 +830,13 @@ constexpr sampler make_sampler();
 ```
 
 Sampler parameters and their behavior are described in subsection
-[Sampler Modes](LINK_TO_OPENCLCXX_SPEC_HTML#sampler-modes) of
-OpenCL C++ Specification.
+[Sampler Modes](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#sampler-modes)
+of OpenCL C++ Specification.
 
 #### OpenCL C++ Specification References
 
-* [OpenCL C++ Standard Library: Images and Samplers Library](LINK_TO_OPENCLCXX_SPEC_HTML#images-and-samplers-library)
-* [OpenCL C++ Standard Library: Marker Types](LINK_TO_OPENCLCXX_SPEC_HTML#marker-types)
+* [OpenCL C++ Standard Library: Images and Samplers Library](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#images-and-samplers-library)
+* [OpenCL C++ Standard Library: Marker Types](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#marker-types)
 
 #### Examples
 
@@ -902,8 +917,9 @@ one `cl::pipe_storage` object.
 
 `cl::pipe::reservation`, `cl::pipe_storage` and `cl::pipe` are marker types.
 However, they also have additional sets of requirements and restictions beyond
-those specified in [Market Types](LINK_TO_OPENCLCXX_SPEC_HTML#marker-types) section.
-The most important are:
+those specified in
+[Market Types](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#marker-types)
+section. The most important are:
 
 * The element type `T` of `pipe` and `pipe_storage` class templates
 must be a POD type i.e. satisfy `is_pod<T>::value == true`.
@@ -918,16 +934,16 @@ union field, a pointer type, an array or the return type of a function.
 `global`, `local`, `priv` and `constant` address space storage classes.
 
 The full lists of requirements and restictions can be found in subsections
-[Requirements](LINK_TO_OPENCLCXX_SPEC_HTML#requirements) and
-[Restrictions](LINK_TO_OPENCLCXX_SPEC_HTML#restrictions-5) of Pipe Library
-section in OpenCL C++ Specification.
+[Requirements](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#requirements) and
+[Restrictions](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#restrictions-5)
+of Pipe Library section in OpenCL C++ Specification.
 
 #### OpenCL C++ Specification References
 
-* [OpenCL C++ Standard Library: Pipes Library](LINK_TO_OPENCLCXX_SPEC_HTML#pipes-library)
-  *  [Requirements](LINK_TO_OPENCLCXX_SPEC_HTML#requirements)
-  *  [Restrictions](LINK_TO_OPENCLCXX_SPEC_HTML#restrictions-5)
-* [OpenCL C++ Standard Library: Marker Types](LINK_TO_OPENCLCXX_SPEC_HTML#marker-types)
+* [OpenCL C++ Standard Library: Pipes Library](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#pipes-library)
+  *  [Requirements](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#requirements)
+  *  [Restrictions](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#restrictions-5)
+* [OpenCL C++ Standard Library: Marker Types](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#marker-types)
 
 #### Examples
 
@@ -1067,13 +1083,13 @@ kernel void error_kernel()
 
 ### <a name="S-OpenCLCXXSTL-DeviceEnqueueLibrary"></a>Device Enqueue Library
 
-When it comes to enqueuing a kernel without host interaction, the biggest difference between OpenCL C
-and OpenCL C++ is that in OpenCL C++ enqueued kernel can be a lambda expression or a function,
-whereas in OpenCL C it is defined using block syntax.
+When it comes to enqueuing a kernel without host interaction, the biggest difference between
+OpenCL C and OpenCL C++ is that in OpenCL C++ enqueued kernel can be a lambda expression or
+a function, whereas in OpenCL C it is defined using block syntax.
 
 All functions except function which returns default device queue and kernel query functions
 were moved to appropriate classes as their methods.
-See [Header <opencl_device_queue> Synopsis](LINK_TO_OPENCLCXX_SPEC_HTML#header-opencl_device_queue-synopsis)
+See [Header <opencl_device_queue> Synopsis](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#header-opencl_device_queue-synopsis)
 subsections of OpenCL C++ specification.
 
 #### Device Queue
@@ -1134,8 +1150,9 @@ not represented by any negative value, but rather by `cl::event_status::error` e
 | CL\_COMPLETE      	| cl::event\_status::complete      	| |
 | Any negative integer value      	| cl::event\_status::error      	| Status indicating an error |
 
-See [Event Class Methods](LINK_TO_OPENCLCXX_SPEC_HTML#event-class-methods) and
-[Event Status](LINK_TO_OPENCLCXX_SPEC_HTML#event-status) subsections of OpenCL C++ specification.
+See [Event Class Methods](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#event-class-methods) and
+[Event Status](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#event-status)
+subsections of OpenCL C++ specification.
 
 #### Enqueue Policy
 
@@ -1149,7 +1166,8 @@ In OpenCL C enqueue policy type was `kernel_enqueue_flags_t` enum, in OpenCL C++
 | CLK_ENQUEUE_FLAGS_WAIT_KERNEL       	| cl::enqueue\_polic::wait\_kernel      	|
 | CLK_ENQUEUE_FLAGS_WAIT_WORK_GROUP      	| cl::enqueue\_polic::wait\_work\_group      	|
 
-See [Enqueue Policy](LINK_TO_OPENCLCXX_SPEC_HTML#enqueue-policy) subsection of OpenCL C++ specification.
+See [Enqueue Policy](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#enqueue-policy)
+subsection of OpenCL C++ specification.
 
 #### Requirements
 
@@ -1164,10 +1182,10 @@ Code enqueuing function objects that do not meet this criteria is ill-formed.
 
 #### OpenCL C++ Specification References
 
-* [OpenCL C++ Standard Library: Device Enqueue Library](LINK_TO_OPENCLCXX_SPEC_HTML#device-enqueue-library)
-  * [Restrictions](LINK_TO_OPENCLCXX_SPEC_HTML#restrictions-6)
-  * [Examples](LINK_TO_OPENCLCXX_SPEC_HTML#examples-7)
-* [OpenCL C++ Standard Library: Marker Types](LINK_TO_OPENCLCXX_SPEC_HTML#marker-types)
+* [OpenCL C++ Standard Library: Device Enqueue Library](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#device-enqueue-library)
+  * [Restrictions](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#restrictions-6)
+  * [Examples](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#examples-7)
+* [OpenCL C++ Standard Library: Marker Types](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#marker-types)
 
 #### Examples
 
@@ -1281,7 +1299,8 @@ gentype select (gentype a, gentype b, ugentype c);
 
 > `igentype` and `ugentype` must have the same number of elements and bits as `gentype`.
 
-> NOTE: The above definition means that the behavior of select and the ternary operator for vector and scalar types is dependent on different interpretations of the bit pattern of `c`.
+> NOTE: The above definition means that the behavior of select and the ternary operator
+for vector and scalar types is dependent on different interpretations of the bit pattern of `c`.
 
 In OpenCL C++ `select()` is less confusing:
 ```cpp
@@ -1295,8 +1314,8 @@ gentype select(gentype a, gentype b, booln c);
 
 #### OpenCL C++ Specification References
 
-* [OpenCL C++ Standard Library: Relational Functions](LINK_TO_OPENCLCXX_SPEC_HTML#relational-functions)
-* [OpenCL C++ Programming Language: Expressions](LINK_TO_OPENCLCXX_SPEC_HTML#expressions)
+* [OpenCL C++ Standard Library: Relational Functions](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#relational-functions)
+* [OpenCL C++ Programming Language: Expressions](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#expressions)
 
 #### Examples
 
@@ -1368,13 +1387,13 @@ functions have not be changed. Also arguments and their order was not changed.
 | <code>float<i>N</i> vloada_half<i>N</i></code> | `template <size_t N> make_vector_t<float, N> vloada_half` |
 | <code>void vstore_half<i>N</i>\[<i>\_rounding\_mode</i>\]</code> | `template <rounding_mode R, class T> void vstorea_half(…, half* p)` |
 
-Read [Header <opencl_vector_load_store> Synopsis](LINK_TO_OPENCLCXX_SPEC_HTML#header-opencl_vector_load_store)
-subsection of [Vector Data Load and Store Functions](LINK_TO_OPENCLCXX_SPEC_HTML#vector-data-load-and-store-functions)
+Read [Header <opencl_vector_load_store> Synopsis](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#header-opencl_vector_load_store)
+subsection of [Vector Data Load and Store Functions](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#vector-data-load-and-store-functions)
 section to see vector data load and store function templates declarations.
 
 #### OpenCL C++ Specification References
 
-* [OpenCL C++ Standard Library: Vector Data Load and Store Functions](LINK_TO_OPENCLCXX_SPEC_HTML#vector-data-load-and-store-functions)
+* [OpenCL C++ Standard Library: Vector Data Load and Store Functions](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#vector-data-load-and-store-functions)
 
 #### Examples
 
@@ -1476,8 +1495,8 @@ kernel void foobar_half(half * hptr)
 
 OpenCL C atomic operation are based on C11 atomics. In OpenCL C++ atomics are based on
 C++14 atomics and synchronization operations.
-Section [Atomic Operations Library](LINK_TO_OPENCLCXX_SPEC_HTML#atomic-operations-library) of OpenCL C++
-presents synopsis of the atomics library and differences from C++14 specification.
+Section [Atomic Operations Library](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#atomic-operations-library)
+of OpenCL C++ presents synopsis of the atomics library and differences from C++14 specification.
 
 Because atomic functions in OpenCL C and OpenCL C++ have virtually the same argument lists adding
 `using namespace cl;` can Significantly speed up porting kernels to OpenCL C++.
@@ -1504,13 +1523,13 @@ and `atomic<double>` in addition requires `cl_khr_fp64`.
 * `memory_order_consume` from C++14 is not supported by OpenCL C++.
 
 Full list of restrictions can be found in subsection
-[Restrictions](LINK_TO_OPENCLCXX_SPEC_HTML#restrictions-3) of section
-[Atomic Operations Library](LINK_TO_OPENCLCXX_SPEC_HTML#atomic-operations-library)
+[Restrictions](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#restrictions-3) of section
+[Atomic Operations Library](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#atomic-operations-library)
 in OpenCL C++ specification.
 
 #### OpenCL C++ Specification References
 
-* [OpenCL C++ Standard Library: Atomic Operations Library](LINK_TO_OPENCLCXX_SPEC_HTML#atomic-operations-librarys)
+* [OpenCL C++ Standard Library: Atomic Operations Library](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#atomic-operations-librarys)
 
 #### Examples
 
@@ -1607,37 +1626,45 @@ Some feature-related options must be specified during compilation to SPIR-V:
 When an OpenCL program created using `clCreateProgramWithIL()` is compiled (`clBuildProgram()`) not
 all build options are allowed. They have to be passed when compiling to SPIR-V. Otherwise, there is
 no difference between building program created from SPIR-V and program created from OpenCL C source.
-Which options are ignored and which not is described in [OpenCL 2.2 API Specification](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2.pdf#page=157).
+Which options are ignored and which not is described in
+[OpenCL 2.2 API Specification](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2.html#_compiler_options).
 
 #### OpenCL C++ Specification and OpenCL 2.2 API References
 
-* [OpenCL C++ Specification: Compiler options](LINK_TO_OPENCLCXX_SPEC_HTML#compiler_options)
-* [OpenCL 2.2 Specification: Compiler Options](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2.pdf#page=157)
+* [OpenCL C++ Specification: Compiler options](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#compiler_options)
+* [OpenCL 2.2 Specification: Compiler Options](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2.html#_compiler_options)
 
 
 # <a name="S-Bibliography"></a>Bibliography
 
 ### OpenCL Specifications
 
-* [The OpenCL C++ 1.0 Specification](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.pdf) ([HTML](#))
+* [The OpenCL C++ 1.0 Specification](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.pdf)
+ ([HTML](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html))
 * [The OpenCL 2.2 API Specification](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2.pdf)
-* [The OpenCL 2.2 Environment Specification](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-environment.pdf)
+ ([HTML](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2.html))
+* [The OpenCL 2.2 Extension Specification](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-extension.pdf)
+ ([HTML](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-extension.html))
+* [OpenCL 2.2 SPIR-V Environment Specification](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-environment.pdf)
+ ([HTML](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-environment.html))
 * [The OpenCL C 2.0 Language Specification](https://www.khronos.org/registry/OpenCL/specs/opencl-2.0-openclc.pdf)
 * [The OpenCL 2.1 API Specification](https://www.khronos.org/registry/OpenCL/specs/opencl-2.1.pdf)
 
 ### OpenCL Reference Pages
 
-* [The OpenCL 2.2 Reference Page](#)
+* The OpenCL 2.2 Reference Page (not published yet)
 * [The OpenCL 2.1 Reference Page](http://www.khronos.org/registry/cl/sdk/2.1/docs/man/xhtml/)
 
 ### OpenCL Headers
 
-* [OpenCL 2.2 Headers](#)
-* [OpenCL 2.1 Headers](https://github.com/KhronosGroup/OpenCL-Headers/tree/opencl21)
+* [OpenCL 2.2 Headers](https://github.com/KhronosGroup/OpenCL-Headers/tree/master/opencl22)
+* [OpenCL 2.1 Headers](https://github.com/KhronosGroup/OpenCL-Headers/tree/master/opencl21)
 
 ### Other
 
 * [Khronos OpenCL Registry](https://www.khronos.org/registry/OpenCL/)
+([GitHub](https://github.com/KhronosGroup/OpenCL-Registry))
+* [OpenCL 2.2 Release Note](https://www.khronos.org/news/press/khronos-releases-opencl-2.2-with-spir-v-1.2)
 * Michael Wong, Adam Stanski, Maria Rovatsou, Ruyman Reyes, Ben Gaster, and Bartok Sochaski. 2016.
 C++ for OpenCL Workshop, IWOCL 2016. In Proceedings of the 4th International Workshop
 on OpenCL (IWOCL '16).
