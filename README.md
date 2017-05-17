@@ -1,7 +1,7 @@
 # [OpenCL C to OpenCL C++ Porting Guidelines](./OpenCLCToOpenCLCppPortingGuidelines.md)
 
 [This document](./OpenCLCToOpenCLCppPortingGuidelines.md) is a set of guidelines for
-developers who know OpenCL C and plan to port their kernels to OpenCL C++, and therefore
+developers who know OpenCL™ C and plan to port their kernels to OpenCL C++, and therefore
 they need to know the main differences between those two kernel languages.
 
 The main focus is on exposing the most important differences between OpenCL C++ and
