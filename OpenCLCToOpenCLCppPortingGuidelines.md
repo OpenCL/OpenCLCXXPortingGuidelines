@@ -117,7 +117,7 @@ OpenCL C++ introduces new built-in vector type: `boolN` (where `N` is 2, 3, 4, 8
 resolves problem with using the relational (`<`, `>`, `<=`, `>=`, `==`, `!=`) and the logical operators
 (`!`, `&&`, `||`) with built-in vector types.
 
-In OpenCL C for built-in vector types the relational and the logica operators return a vector signed
+In OpenCL C for built-in vector types the relational and the logical operators return a vector signed
 integer type of the same size as the source operands. In OpenCL C++ it was simpliefied and
 those operators return `boolN` for vector types and `bool` for scalars.
 
@@ -800,7 +800,7 @@ kernel void openclc(read_only image2d_t img) // read_only keyword sets access mo
 #### Image access mode
 
 Based on the image access mode different read and write methods are present in
-the instantiate image class. See subsection
+the instantiated image class. See subsection
 [Image access](https://www.khronos.org/registry/OpenCL/specs/opencl-2.2-cplusplus.html#image-access)
 of OpenCL C++ Specification for more details.
 
@@ -1409,7 +1409,7 @@ kernel void foobar(float * fptr, const constant_ptr<half> hptr)
   auto f4 = vload<4>(0, fptr); // reads from (fptr + (0 * 4)), float4 returned
   auto f2 = vload<2>(2, fptr); // reads from (fptr + (2 * 2)), float2 returned
 
-#ifdef cl_khr_fp16 // cl_khr_fp16 must be defined and suppported
+#ifdef cl_khr_fp16 // cl_khr_fp16 must be defined and supported
   auto h8 = vload<8>(0, hptr); // reads from (hptr + (0 * 8)), half8 returned
 #endif
 
@@ -1425,7 +1425,7 @@ kernel void foobar(float * fptr, const constant half * hptr)
   float4 f4 = vload4(0, fptr); // reads from (fptr + (0 * 4)), float4 returned
   float2 f2 = vload2(2, fptr); // reads from (fptr + (2 * 2)), float2 returned
 
-#ifdef cl_khr_fp16 // cl_khr_fp16 must be defined and suppported
+#ifdef cl_khr_fp16 // cl_khr_fp16 must be defined and supported
   half8 h8 = vload8(0, hptr); // reads from (hptr + (0 * 8)), half8 returned
 #endif
 
